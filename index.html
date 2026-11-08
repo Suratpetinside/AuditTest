@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สถานีสัตว์เลี้ยง (Pet's Station) - ระบบจัดการร้านค้า</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Kanit & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        petRed: '#8B1E1E',
+                        petDarkRed: '#6A1414',
+                        petLightRed: '#FFF5F5',
+                        petAccent: '#D93838'
+                    },
+                    fontFamily: {
+                        kanit: ['Kanit', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- GLOBAL NOTIFICATION BANNER / TOAST -->
+    <div id="toastNotification" class="fixed top-5 right-5 z-50 transform translate-x-full opacity-0 transition-all duration-300 max-w-sm w-full bg-white border-l-4 shadow-xl rounded-xl p-4 flex items-start space-x-3">
+        <div id="toastIcon" class="text-xl pt-0.5"></div>
+        <div class="flex-1">
+            <h4 id="toastTitle" class="font-bold text-sm"></h4>
+            <p id="toastMessage" class="text-xs text-slate-600 mt-0.5"></p>
+        </div>
+        <button onclick="hideToast()" class="text-slate-400 hover:text-slate-600">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div id="appContainer" class="flex-1 flex items-center justify-center p-4">
+
+        <!-- ==================== VIEW 1: AUTHENTICATION CONTAINER (Log-001) ==================== -->
+        <div id="authContainer" class="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 transition-all duration-300">
+            
+            <!-- Brand Banner Header -->
+            <div class="bg-petRed text-white p-8 text-center relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 w-32 h-32 bg-white/10 rounded-full blur-xl"></div>
+                <div class="absolute -left-10 -bottom-10 w-32 h-32 bg-black/10 rounded-full blur-xl"></div>
+                
+                <div class="relative z-10 flex flex-col items-center">
+                    <div class="w-20 h-20 bg-white rounded-2xl flex items-center justify-center shadow-lg mb-4 text-petRed text-3xl font-bold">
+                        <i class="fa-solid fa-paw"></i>
+                    </div>
+                    <h1 class="text-2xl font-bold tracking-wide">PET's STATION</h1>
+                    <p class="text-white/90 text-sm mt-1 font-light">สถานีสัตว์เลี้ยง - ระบบจัดการหลังร้าน</p>
+                </div>
+            </div>
+
+            <div class="p-8">
+
+                <!-- 1.1 LOGIN SUB-VIEW -->
+                <div id="loginView" class="space-y-6">
+                    <div class="text-center">
+                        <h2 class="text-xl font-bold text-slate-800">เข้าสู่ระบบ (Log-001)</h2>
+                        <p class="text-xs text-slate-500 mt-1">ใช้งานด้วย Google Mail หรือบัญชีร้านค้า</p>
+                    </div>
+
+                    <!-- Google Mail Quick Login Button -->
+                    <button type="button" onclick="simulateGoogleLogin()" class="w-full flex items-center justify-center space-x-3 py-3 px-4 border border-slate-300 rounded-xl shadow-sm text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-petRed transition-all">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                        </svg>
+                        <span>เข้าสู่ระบบด้วย Google Mail</span>
+                    </button>
+
+                    <div class="flex items-center justify-center space-x-2">
+                        <span class="h-px bg-slate-200 flex-1"></span>
+                        <span class="text-xs text-slate-400 uppercase tracking-widest">หรือใช้อีเมลร้าน</span>
+                        <span class="h-px bg-slate-200 flex-1"></span>
+                    </div>
+
+                    <!-- Email & Password Form -->
+                    <form onsubmit="handleLogin(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Google Mail (Gmail)</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                                    <i class="fa-regular fa-envelope"></i>
+                                </span>
+                                <input type="email" id="loginEmail" required placeholder="petstation@gmail.com" 
+                                    class="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-petRed focus:border-petRed outline-none transition-all">
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="text-xs font-semibold text-slate-700">รหัสผ่าน</label>
+                                <button type="button" onclick="switchAuthView('recoverView')" class="text-xs text-petRed hover:underline font-medium">
+                                    ลืมรหัสผ่าน / แก้ไข?
+                                </button>
+                            </div>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                                    <i class="fa-solid fa-lock"></i>
+                                </span>
+                                <input type="password" id="loginPassword" required placeholder="••••••••" 
+                                    class="w-full pl-10 pr-10 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-petRed focus:border-petRed outline-none transition-all">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full bg-petRed hover:bg-petDarkRed text-white font-medium py-3 rounded-xl shadow-md transition-all text-sm">
+                            เข้าสู่ระบบหลังร้าน
+                        </button>
+                    </form>
+
+                    <!-- Sign Up Trigger for unregistered users -->
+                    <div class="text-center pt-2">
+                        <p class="text-xs text-slate-600">
+                            ใครที่ยังไม่มีบัญชี? 
+                            <button onclick="switchAuthView('registerView')" class="text-petRed font-semibold hover:underline ml-1">
+                                ไปสมัครสมาชิก
+                            </button>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 1.2 REGISTER SUB-VIEW (ใครที่ยังไม่มี ให้ไปสมัคร) -->
+                <div id="registerView" class="hidden space-y-6">
+                    <div class="text-center">
+                        <h2 class="text-xl font-bold text-slate-800">สมัครสมาชิกใหม่</h2>
+                        <p class="text-xs text-slate-500 mt-1">ลงทะเบียนบัญชี Google Mail กับสถานีสัตว์เลี้ยง</p>
+                    </div>
+
+                    <form onsubmit="handleRegister(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">ชื่อพนักงาน / ชื่อร้าน</label>
+                            <input type="text" id="regName" required placeholder="เช่น สมชาย ใจดี" 
+                                class="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-petRed outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Google Mail (Gmail)</label>
+                            <input type="email" id="regEmail" required placeholder="name@gmail.com" 
+                                class="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-petRed outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">ตั้งรหัสผ่าน</label>
+                            <input type="password" id="regPassword" required placeholder="อย่างน้อย 6 ตัวอักษร" 
+                                class="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-petRed outline-none">
+                        </div>
+                        <button type="submit" class="w-full bg-petRed hover:bg-petDarkRed text-white font-medium py-3 rounded-xl shadow-md transition-all text-sm">
+                            ยืนยันการสมัครสมาชิก
+                        </button>
+                    </form>
+
+                    <div class="text-center pt-2">
+                        <button onclick="switchAuthView('loginView')" class="text-xs text-petRed font-semibold hover:underline">
+                            <i class="fa-solid fa-arrow-left mr-1"></i> กลับไปเข้าสู่ระบบ
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 1.3 RECOVER & EDIT SUB-VIEW (แก้ไข / ลืมรหัสผ่าน) -->
+                <div id="recoverView" class="hidden space-y-6">
+                    <div class="text-center">
+                        <h2 class="text-xl font-bold text-slate-800">กู้คืน / แก้ไขรหัสผ่าน</h2>
+                        <p class="text-xs text-slate-500 mt-1">กรอก Google Mail เพื่อรับลิงก์แก้ไขข้อมูล</p>
+                    </div>
+
+                    <form onsubmit="handleRecover(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Google Mail ที่ลงทะเบียน</label>
+                            <input type="email" id="recoverEmail" required placeholder="name@gmail.com" 
+                                class="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-petRed outline-none">
+                        </div>
+                        <button type="submit" class="w-full bg-petRed hover:bg-petDarkRed text-white font-medium py-3 rounded-xl shadow-md transition-all text-sm">
+                            ส่งลิงก์รีเซ็ตรหัสผ่าน
+                        </button>
+                    </form>
+
+                    <div class="text-center pt-2">
+                        <button onclick="switchAuthView('loginView')" class="text-xs text-petRed font-semibold hover:underline">
+                            <i class="fa-solid fa-arrow-left mr-1"></i> กลับหน้าเข้าสู่ระบบ
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+            
+            <div class="bg-slate-50 px-8 py-4 text-center border-t border-slate-100">
+                <p class="text-[11px] text-slate-400">© 2026 Pet's Station (สถานีสัตว์เลี้ยง) All rights reserved.</p>
+            </div>
+        </div>
+
+
+        <!-- ==================== VIEW 2: MAIN DASHBOARD & SYSTEM MENUS ==================== -->
+        <div id="dashboardContainer" class="hidden w-full max-w-7xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col lg:flex-row min-h-[85vh]">
+            
+            <!-- Sidebar Navigation -->
+            <div class="w-full lg:w-72 bg-petRed text-white p-6 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center space-x-3 mb-8 pb-4 border-b border-white/10">
+                        <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-petRed text-xl font-bold shadow">
+                            <i class="fa-solid fa-paw"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-bold text-lg leading-tight">PET's STATION</h2>
+                            <span class="text-xs text-white/80" id="userBadgeEmail">admin@gmail.com</span>
+                        </div>
+                    </div>
+
+                    <nav class="space-y-1.5">
+                        <button onclick="switchTab('tabReceive')" id="btnTabReceive" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium bg-white/20 text-white transition-all">
+                            <i class="fa-solid fa-box-open w-5 text-center"></i>
+                            <span>ระบบรับของ (Receive)</span>
+                        </button>
+                        <button onclick="switchTab('tabAudit')" id="btnTabAudit" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-white/80 hover:bg-white/10 transition-all">
+                            <i class="fa-solid fa-triangle-exclamation w-5 text-center"></i>
+                            <span>ตรวจสอบสินค้า & เคลม</span>
+                        </button>
+                        <button onclick="switchTab('tabExpense')" id="btnTabExpense" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-white/80 hover:bg-white/10 transition-all">
+                            <i class="fa-solid fa-receipt w-5 text-center"></i>
+                            <span>ค่าใช้จ่าย & บัญชีซื้อมา</span>
+                        </button>
+                        <button onclick="switchTab('tabCN')" id="btnTabCN" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-white/80 hover:bg-white/10 transition-all">
+                            <i class="fa-solid fa-file-invoice-dollar w-5 text-center"></i>
+                            <span>ระบบติดตาม CN</span>
+                        </button>
+                    </nav>
+                </div>
+
+                <div class="pt-6 border-t border-white/10">
+                    <button onclick="handleLogout()" class="w-full flex items-center justify-center space-x-2 py-2.5 px-4 bg-white/10 hover:bg-white/20 rounded-xl text-sm font-medium transition-all text-white">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>ออกจากระบบ</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Content Workspace -->
+            <div class="flex-1 flex flex-col bg-slate-50 overflow-y-auto">
+                
+                <!-- Top Navbar Header -->
+                <header class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between sticky top-0 z-10">
+                    <div>
+                        <h3 id="currentHeaderTitle" class="text-lg font-bold text-slate-800">ระบบรับของ (Receive Goods)</h3>
+                        <p class="text-xs text-slate-500">จัดการรายการสินค้าที่จัดส่งมาถึงสถานีสัตว์เลี้ยงประจำวัน</p>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            <span class="w-2 h-2 mr-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                            เชื่อมต่อ LINE OA สำเร็จ
+                        </span>
+                    </div>
+                </header>
+
+                <main class="p-8 flex-1">
+
+                    <!-- ================= TAB 1: RECEIVE GOODS & TASK LIST ================= -->
+                    <div id="tabReceive" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-petLightRed text-petRed rounded-xl flex items-center justify-center text-xl font-bold">
+                                    <i class="fa-solid fa-boxes-stacked"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-slate-500 font-medium">รายการรอรับวันนี้</p>
+                                    <h4 class="text-xl font-bold text-slate-800">4 รายการ</h4>
+                                </div>
+                            </div>
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl font-bold">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-slate-500 font-medium">รอตรวจสอบความเสียหาย</p>
+                                    <h4 class="text-xl font-bold text-slate-800">1 รายการ</h4>
+                                </div>
+                            </div>
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl font-bold">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-slate-500 font-medium">รับเข้าคลังแล้ว</p>
+                                    <h4 class="text-xl font-bold text-slate-800">12 รายการ</h4>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Task List Table -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                            <div class="p-6 border-b border-slate-200 flex items-center justify-between">
+                                <h4 class="font-bold text-slate-800 text-base">รายการขนส่งสินค้าประจำวันที่ต้องรับ (Receive-001)</h4>
+                                <div class="flex space-x-2">
+                                    <input type="date" id="taskDateFilter" class="px-3 py-1.5 text-xs border border-slate-300 rounded-lg outline-none">
+                                    <button onclick="showToast('info', 'อัปเดตข้อมูล', 'ดึงข้อมูลรายการล่าสุดจากระบบเรียบร้อย')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium">รีเฟรช</button>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                            <th class="p-4">รหัสรายการ</th>
+                                            <th class="p-4">ชื่อ Supplier</th>
+                                            <th class="p-4">รายการสินค้า</th>
+                                            <th class="p-4">สถานะ</th>
+                                            <th class="p-4 text-right">จัดการ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 text-sm">
+                                        <tr class="hover:bg-slate-50 transition-colors">
+                                            <td class="p-4 font-semibold text-petRed">REC-2026-001</td>
+                                            <td class="p-4 font-medium">บริษัท เพ็ทฟู้ด โฮเซล จำกัด</td>
+                                            <td class="p-4 text-slate-600">อาหารสุนัขเกรดพรีเมียม (20 ถุง)</td>
+                                            <td class="p-4"><span class="px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-medium">รอตรวจรับ</span></td>
+                                            <td class="p-4 text-right">
+                                                <button onclick="openReceiveModal('REC-2026-001', 'บริษัท เพ็ทฟู้ด โฮเซล จำกัด', 'อาหารสุนัขเกรดพรีเมียม (20 ถุง)')" class="px-3 py-1.5 bg-petRed text-white rounded-lg text-xs font-medium hover:bg-petDarkRed">ตรวจรับสินค้า</button>
+                                            </td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50 transition-colors">
+                                            <td class="p-4 font-semibold text-petRed">REC-2026-002</td>
+                                            <td class="p-4 font-medium">หจก. แมวเหมียวซัพพลาย</td>
+                                            <td class="p-4 text-slate-600">ทรายแมวเต้าหู้ธรรมชาติ (50 ถุง)</td>
+                                            <td class="p-4"><span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-medium">รับเข้าคลังแล้ว</span></td>
+                                            <td class="p-4 text-right">
+                                                <button onclick="showToast('success', 'สำเร็จ', 'รายการนี้บันทึกรับเข้าคลังเรียบร้อยแล้ว')" class="px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg text-xs font-medium">ดูรายละเอียด</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ================= TAB 2: AUDIT & CLAIM SYSTEM ================= -->
+                    <div id="tabAudit" class="hidden space-y-6">
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                            <h4 class="font-bold text-slate-800 text-base mb-4">ตรวจสอบสินค้ามีปัญหา & ส่งเรื่องเคลม (Audit-002)</h4>
+                            <p class="text-xs text-slate-500 mb-6">หากพบสินค้าเสียหาย ชำรุด หรือจำนวนไม่ตรงตามบิล สามารถบันทึกแจ้งเคลมส่งตรงถึง LINE OA ของ Supplier ทันที</p>
+                            
+                            <form onsubmit="submitClaim(event)" class="space-y-4 max-w-2xl">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">เลือกรายการสั่งซื้อที่มีปัญหา</label>
+                                    <select id="claimOrderSelect" class="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-petRed">
+                                        <option value="REC-2026-001">REC-2026-001 : อาหารสุนัขเกรดพรีเมียม (เสียหาย 2 ถุง)</option>
+                                        <option value="REC-2026-003">REC-2026-003 : ของเล่นแมวฟรุ้งฟริ้ง (ชำรุด 1 ชิ้น)</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 mb-1">จำนวนที่ต้องการเคลม</label>
+                                        <input type="number" min="1" value="2" class="w-full px-4 py-2 text-sm border border-slate-300 rounded-xl outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 mb-1">แนบรูปภาพความเสียหาย</label>
+                                        <input type="file" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-petLightRed file:text-petRed hover:file:bg-red-100">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">สาเหตุการเคลม</label>
+                                    <textarea rows="3" placeholder="ระบุรายละเอียดความเสียหาย เช่น ถุงฉีกขาดระหว่างขนส่ง..." class="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-petRed"></textarea>
+                                </div>
+                                <button type="submit" class="bg-petRed hover:bg-petDarkRed text-white text-sm font-medium py-2.5 px-6 rounded-xl shadow transition-all">
+                                    บันทึกและส่งเรื่องเคลมไป LINE OA Supplier
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- ================= TAB 3: EXPENSES & ACCOUNTING ================= -->
+                    <div id="tabExpense" class="hidden space-y-6">
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="font-bold text-slate-800 text-base">บันทึกบัญชีค่าใช้จ่ายร้านค้า (Audit-002 / Pay-001)</h4>
+                                <button onclick="openExpenseModal()" class="px-4 py-2 bg-petRed text-white rounded-xl text-xs font-medium hover:bg-petDarkRed">
+                                    <i class="fa-solid fa-plus mr-1.5"></i> เพิ่มรายการค่าใช้จ่าย
+                                </button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                            <th class="p-4">ประเภทรายการ</th>
+                                            <th class="p-4">รายละเอียด</th>
+                                            <th class="p-4">ยอดเงิน (บาท)</th>
+                                            <th class="p-4">สถานะการชำระ</th>
+                                            <th class="p-4 text-right">ดำเนินการ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 text-sm">
+                                        <tr>
+                                            <td class="p-4 font-semibold text-slate-800">ค่าเช่าที่</td>
+                                            <td class="p-4 text-slate-600">ค่าเช่าพื้นที่สาขาเซ็นทรัล (ประจำเดือน)</td>
+                                            <td class="p-4 font-medium text-petRed">15,000.00</td>
+                                            <td class="p-4"><span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-medium">ชำระแล้ว (Pay-001)</span></td>
+                                            <td class="p-4 text-right"><span class="text-xs text-slate-400">ลงบัญชีแล้ว</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-4 font-semibold text-slate-800">ค่าไฟฟ้า</td>
+                                            <td class="p-4 text-slate-600">ค่าไฟร้านสถานีสัตว์เลี้ยงรอบบิลล่าสุด</td>
+                                            <td class="p-4 font-medium text-petRed">4,250.00</td>
+                                            <td class="p-4"><span class="px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-medium">รอจ่ายเงิน</span></td>
+                                            <td class="p-4 text-right">
+                                                <button onclick="showToast('success', 'ชำระเงินสำเร็จ', 'บันทึกรายจ่ายและส่งเข้าระบบบัญชีซื้อมาเรียบร้อย')" class="px-3 py-1 bg-petRed text-white rounded-lg text-xs">จ่ายเงินร้านค้า</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ================= TAB 4: CN TRACKING ================= -->
+                    <div id="tabCN" class="hidden space-y-6">
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                            <h4 class="font-bold text-slate-800 text-base mb-4">ระบบติดตามใบใบลดหนี้ / เครดิตโน้ต (CN Tracking)</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                <div class="p-4 rounded-xl border border-slate-200 bg-slate-50">
+                                    <span class="text-xs font-bold text-petRed uppercase tracking-wider">CN-2026-089</span>
+                                    <h5 class="font-bold text-slate-800 text-sm mt-1">ใบลดหนี้จากการเคลมสินค้าชำรุด</h5>
+                                    <p class="text-xs text-slate-500 mt-0.5">Supplier: บริษัท เพ็ทฟู้ด โฮเซล จำกัด | ยอดเงิน: 850 บาท</p>
+                                    <div class="mt-3 flex items-center justify-between">
+                                        <span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-xs font-medium">รอหักยอดบิลถัดไป</span>
+                                        <span class="text-xs text-slate-400">อัปเดตล่าสุด: วันนี้</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </main>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL POPUP FOR RECEIVE GOODS CONFIRMATION -->
+    <div id="receiveModal" class="fixed inset-0 z-50 bg-black/50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <h3 class="text-lg font-bold text-slate-800" id="modalRecId">ตรวจรับสินค้า</h3>
+            <p class="text-xs text-slate-500" id="modalRecDesc">รายละเอียดสินค้า...</p>
+            
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">จำนวนรับเข้าจริง</label>
+                    <input type="number" id="receiveQtyInput" value="20" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">หมายเหตุ / สภาพสินค้า</label>
+                    <input type="text" placeholder="ครบถ้วน สมบูรณ์" value="สินค้าครบถ้วน สมบูรณ์ดีเยี่ยม" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl outline-none">
+                </div>
+            </div>
+
+            <div class="flex space-x-3 pt-2">
+                <button onclick="closeReceiveModal()" class="flex-1 py-2.5 border border-slate-300 text-slate-700 rounded-xl text-sm font-medium hover:bg-slate-50">ยกเลิก</button>
+                <button onclick="confirmReceiveAction()" class="flex-1 py-2.5 bg-petRed text-white rounded-xl text-sm font-medium hover:bg-petDarkRed">บันทึกรับเข้าคลัง</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <script>
+        // Mock Registered Database
+        let databaseUsers = [
+            { email: 'admin@gmail.com', password: '123456', name: 'แอดมินสถานีสัตว์เลี้ยง' }
+        ];
+
+        // Toast Notification System (No alert() used as per guidelines)
+        function showToast(type, title, message) {
+            const toast = document.getElementById('toastNotification');
+            const icon = document.getElementById('toastIcon');
+            const titleEl = document.getElementById('toastTitle');
+            const msgEl = document.getElementById('toastMessage');
+
+            titleEl.innerText = title;
+            msgEl.innerText = message;
+
+            if(type === 'error') {
+                toast.className = "fixed top-5 right-5 z-50 transform translate-x-0 opacity-100 transition-all duration-300 max-w-sm w-full bg-white border-l-4 border-red-500 shadow-xl rounded-xl p-4 flex items-start space-x-3";
+                icon.innerHTML = '<i class="fa-solid fa-circle-exclamation text-red-500"></i>';
+            } else if(type === 'success') {
+                toast.className = "fixed top-5 right-5 z-50 transform translate-x-0 opacity-100 transition-all duration-300 max-w-sm w-full bg-white border-l-4 border-emerald-500 shadow-xl rounded-xl p-4 flex items-start space-x-3";
+                icon.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-500"></i>';
+            } else {
+                toast.className = "fixed top-5 right-5 z-50 transform translate-x-0 opacity-100 transition-all duration-300 max-w-sm w-full bg-white border-l-4 border-blue-500 shadow-xl rounded-xl p-4 flex items-start space-x-3";
+                icon.innerHTML = '<i class="fa-solid fa-circle-info text-blue-500"></i>';
+            }
+
+            setTimeout(hideToast, 4000);
+        }
+
+        function hideToast() {
+            const toast = document.getElementById('toastNotification');
+            toast.className = "fixed top-5 right-5 z-50 transform translate-x-full opacity-0 transition-all duration-300 max-w-sm w-full bg-white border-l-4 shadow-xl rounded-xl p-4 flex items-start space-x-3";
+        }
+
+        // Switch Auth Views (Login <-> Register <-> Recover)
+        function switchAuthView(viewId) {
+            document.getElementById('loginView').classList.add('hidden');
+            document.getElementById('registerView').classList.add('hidden');
+            document.getElementById('recoverView').classList.add('hidden');
+            document.getElementById(viewId).classList.remove('hidden');
+        }
+
+        // Simulate Google Mail Login (Log-001)
+        function simulateGoogleLogin() {
+            showToast('success', 'เชื่อมต่อ Google สำเร็จ', 'กำลังตรวจสอบสิทธิ์บัญชี Gmail สำหรับสถานีสัตว์เลี้ยง...');
+            setTimeout(() => {
+                transitionToDashboard('google.owner@gmail.com');
+            }, 1200);
+        }
+
+        // Handle Email/Password Login
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if(!email.endsWith('@gmail.com')) {
+                showToast('error', 'อีเมลไม่ถูกต้อง', 'กรุณาใช้ Google Mail (@gmail.com) ในการเข้าสู่ระบบร้านค้า');
+                return;
+            }
+
+            const found = databaseUsers.find(u => u.email === email && u.password === password);
+            if(found || (email === 'admin@gmail.com' && password === '123456')) {
+                showToast('success', 'เข้าสู่ระบบสำเร็จ!', 'ยินดีต้อนรับสู่ระบบจัดการร้านสถานีสัตว์เลี้ยง');
+                setTimeout(() => transitionToDashboard(email), 1000);
+            } else {
+                // Feature requirement: Error notification for incorrect password / email
+                showToast('error', 'รหัสผ่านไม่ถูกต้อง', 'อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบใหม่อีกครั้ง');
+            }
+        }
+
+        // Handle Registration (ใครที่ยังไม่มี ให้ไปสมัคร)
+        function handleRegister(event) {
+            event.preventDefault();
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+
+            if(!email.endsWith('@gmail.com')) {
+                showToast('error', 'รูปแบบอีเมลไม่ถูกต้อง', 'ต้องสมัครสมาชิกด้วย Google Mail (@gmail.com) เท่านั้น');
+                return;
+            }
+
+            if(databaseUsers.some(u => u.email === email)) {
+                showToast('error', 'อีเมลซ้ำในระบบ', 'Google Mail นี้ถูกใช้งานลงทะเบียนแล้ว กรุณาเข้าสู่ระบบ');
+                return;
+            }
+
+            databaseUsers.push({ email, password, name });
+            showToast('success', 'สมัครสมาชิกสำเร็จ!', 'ท่านสามารถใช้ Google Mail นี้เข้าสู่ระบบได้ทันที');
+            setTimeout(() => {
+                switchAuthView('loginView');
+                document.getElementById('loginEmail').value = email;
+            }, 1200);
+        }
+
+        // Handle Recover / Reset Password
+        function handleRecover(event) {
+            event.preventDefault();
+            const email = document.getElementById('recoverEmail').value.trim();
+            if(!email.endsWith('@gmail.com')) {
+                showToast('error', 'อีเมลไม่ถูกต้อง', 'กรุณากรอก Google Mail ที่ใช้ลงทะเบียน');
+                return;
+            }
+            showToast('success', 'ส่งลิงก์รีเซ็ตแล้ว', 'ระบบได้ส่งลิงก์แก้ไขข้อมูลไปที่ Google Mail ของท่านเรียบร้อย');
+            setTimeout(() => switchAuthView('loginView'), 1500);
+        }
+
+        // Transition from Auth to Dashboard
+        function transitionToDashboard(email) {
+            document.getElementById('authContainer').classList.add('hidden');
+            document.getElementById('dashboardContainer').classList.remove('hidden');
+            document.getElementById('userBadgeEmail').innerText = email;
+        }
+
+        // Handle Logout
+        function handleLogout() {
+            document.getElementById('dashboardContainer').classList.add('hidden');
+            document.getElementById('authContainer').classList.remove('hidden');
+            showToast('info', 'ออกจากระบบแล้ว', 'ท่านได้ออกจากระบบจัดการร้านค้าเรียบร้อย');
+        }
+
+        // Dashboard Tab Navigation Switcher
+        function switchTab(tabId) {
+            // Hide all tabs
+            document.getElementById('tabReceive').classList.add('hidden');
+            document.getElementById('tabAudit').classList.add('hidden');
+            document.getElementById('tabExpense').classList.add('hidden');
+            document.getElementById('tabCN').classList.add('hidden');
+
+            // Reset tab button styling
+            const buttons = ['btnTabReceive', 'btnTabAudit', 'btnTabExpense', 'btnTabCN'];
+            buttons.forEach(id => {
+                const btn = document.getElementById(id);
+                btn.className = "w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-white/80 hover:bg-white/10 transition-all";
+            });
+
+            // Show selected tab & highlight button
+            document.getElementById(tabId).classList.remove('hidden');
+            
+            let activeBtnId = 'btnTabReceive';
+            let headerTitle = 'ระบบรับของ (Receive Goods)';
+            if(tabId === 'tabAudit') { activeBtnId = 'btnTabAudit'; headerTitle = 'ตรวจสอบสินค้า & เคลมสินค้า (Audit & Claim)'; }
+            else if(tabId === 'tabExpense') { activeBtnId = 'btnTabExpense'; headerTitle = 'ระบบค่าใช้จ่าย & บัญชีซื้อมา (Accounting & Expenses)'; }
+            else if(tabId === 'tabCN') { activeBtnId = 'btnTabCN'; headerTitle = 'ระบบติดตาม CN (Credit Note Tracking)'; }
+
+            document.getElementById(activeBtnId).className = "w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium bg-white/20 text-white transition-all";
+            document.getElementById('currentHeaderTitle').innerText = headerTitle;
+        }
+
+        // Receive Modal Actions
+        function openReceiveModal(recId, supplier, desc) {
+            document.getElementById('modalRecId').innerText = 'ตรวจรับรายการ: ' + recId;
+            document.getElementById('modalRecDesc').innerText = supplier + ' - ' + desc;
+            document.getElementById('receiveModal').classList.remove('hidden');
+        }
+
+        function closeReceiveModal() {
+            document.getElementById('receiveModal').classList.add('hidden');
+        }
+
+        function confirmReceiveAction() {
+            closeReceiveModal();
+            showToast('success', 'รับเข้าคลังสำเร็จ', 'บันทึกรายการสินค้าเข้าสู่คลังของสถานีสัตว์เลี้ยงเรียบร้อยแล้ว');
+        }
+
+        function submitClaim(event) {
+            event.preventDefault();
+            showToast('success', 'ส่งเรื่องเคลมสำเร็จ', 'ระบบส่งข้อความแจ้งเคลมไปยัง LINE OA ของ Supplier เรียบร้อย');
+        }
+    </script>
+</body>
+</html>

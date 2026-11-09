@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบจัดการร้าน & บัญชีอัตโนมัติ - สถานีสัตว์เลี้ยง (Pet's Station)</title>
+    <title>ระบบบัญชีและตรวจสอบ (Audit & Accounting Hub) - สถานีสัตว์เลี้ยง (Pet's Station)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -12,18 +12,18 @@
 </head>
 <body class="bg-gradient-to-br from-red-900 via-red-800 to-black text-gray-800 min-h-screen flex flex-col">
 
-    <!-- ================= 1. ส่วนหน้าล็อกอิน & ระบบ OTP ลืมรหัสผ่าน ================= -->
+    <!-- ================= 1. ส่วนหน้าล็อกอินเดิม (คงไว้ตามที่คุณต้องการเป๊ะๆ พร้อมตาเปิด/ปิดรหัสผ่าน) ================= -->
     <div id="auth-wrapper" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-md">
         <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-red-100 p-8 transform transition-all">
             
             <!-- Logo & Store Header -->
             <div class="text-center mb-6">
                 <div class="inline-block bg-gradient-to-r from-red-600 to-red-700 text-white font-bold p-3.5 rounded-2xl shadow-lg text-2xl mb-2">Pet's Station</div>
-                <h2 class="text-xl font-extrabold text-gray-900">ระบบจัดการร้านสถานีสัตว์เลี้ยง</h2>
+                <h2 class="text-xl font-extrabold text-gray-900">ระบบบัญชีและตรวจสอบ (Audit & Accounting Hub)</h2>
                 <p class="text-xs text-red-600 font-medium mt-1">สุราษฎร์ธานี (Surat Thani)</p>
             </div>
 
-            <!-- Error / Success Notification Alert -->
+            <!-- Error Notification Alert -->
             <div id="login-error-alert" class="hidden mb-4 p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs rounded-2xl flex items-center gap-2 shadow-sm">
                 <span>⚠️</span> <span id="error-message-text">อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง</span>
             </div>
@@ -31,6 +31,7 @@
             <!-- Tab Switcher -->
             <div class="flex bg-gray-100 p-1.5 rounded-2xl mb-6 text-xs font-semibold">
                 <button onclick="switchAuthTab('login')" id="tab-login-btn" class="flex-1 py-2.5 rounded-xl bg-white text-red-700 shadow-sm transition">เข้าสู่ระบบ</button>
+                <button onclick="switchAuthTab('register')" id="tab-register-btn" class="flex-1 py-2.5 rounded-xl text-gray-600 transition">สมัครสมาชิก</button>
                 <button onclick="switchAuthTab('forgot')" id="tab-forgot-btn" class="flex-1 py-2.5 rounded-xl text-gray-600 transition">ลืมรหัสผ่าน</button>
             </div>
 
@@ -38,12 +39,12 @@
             <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">Google Mail (Gmail)</label>
-                    <input type="email" id="login-email" required placeholder="name@gmail.com" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+                    <input type="email" id="login-email" required placeholder="tanwalai@gmail.com" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none" value="tanwalai@gmail.com">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">รหัสผ่านบัญชีร้าน</label>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">รหัสผ่านบัญชี</label>
                     <div class="relative">
-                        <input type="password" id="login-pass" required placeholder="••••••••" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none pr-10">
+                        <input type="password" id="login-pass" required placeholder="••••••••" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none pr-10" value="123456">
                         <button type="button" onclick="togglePassword('login-pass', 'eye-login')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none">
                             <span id="eye-login">👁️</span>
                         </button>
@@ -54,97 +55,50 @@
                 </button>
             </form>
 
-            <!-- Form: Forgot Password (Step 1) -->
-            <form id="form-forgot" onsubmit="handleSendOTP(event)" class="space-y-4 hidden">
-                <p class="text-xs text-gray-600 bg-red-50 p-3 rounded-xl border border-red-100">💡 กรอกอีเมลของคุณ ระบบจะส่งรหัส OTP ไปยังอีเมลของคุณ และส่งแจ้งเตือนไปยังอีเมลเถ้าแก่ (<span class="font-semibold text-red-700">pets.station681@gmail.com</span>)</p>
+            <!-- Form: Register -->
+            <form id="form-register" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">ชื่อ - สกุล / บทบาท</label>
+                    <input type="text" id="reg-name" required placeholder="ธัญวลัย (ผู้ตรวจสอบบัญชี)" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+                </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">Google Mail (Gmail)</label>
-                    <input type="email" id="forgot-email" required placeholder="name@gmail.com" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+                    <input type="email" id="reg-email" required placeholder="name@gmail.com" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">ตั้งรหัสผ่านใหม่</label>
+                    <div class="relative">
+                        <input type="password" id="reg-pass" required placeholder="••••••••" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none pr-10">
+                        <button type="button" onclick="togglePassword('reg-pass', 'eye-reg')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none">
+                            <span id="eye-reg">👁️</span>
+                        </button>
+                    </div>
                 </div>
                 <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition duration-200 text-sm">
-                    📤 ส่งรหัส OTP ยืนยันตัวตน
+                    📝 ลงทะเบียนเข้าสู่ระบบร้าน
                 </button>
             </form>
 
-            <!-- Form: Verify OTP (Step 2) -->
-            <form id="form-otp-reset" onsubmit="handleVerifyOTP(event)" class="space-y-4 hidden">
-                <div class="bg-blue-50 border border-blue-200 p-3 rounded-xl text-[11px] text-blue-800 space-y-1">
-                    <p class="font-semibold">✉️ ส่งรหัส OTP สำเร็จ!</p>
-                    <p>- ส่งไปที่อีเมลผู้ขอเรียบร้อยแล้ว</p>
-                    <p>- 🚨 แจ้งเตือนส่งไปยังอีเมลเถ้าแก่ (pets.station681@gmail.com) แล้ว</p>
-                </div>
+            <!-- Form: Forgot Password -->
+            <form id="form-forgot" onsubmit="handleForgot(event)" class="space-y-4 hidden">
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">กรอกรหัส OTP (6 หลัก)</label>
-                    <input type="text" id="otp-input" required maxlength="6" placeholder="123456" class="w-full border border-gray-300 rounded-xl p-3 text-center tracking-widest font-bold text-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Google Mail ที่ใช้ลงทะเบียน</label>
+                    <input type="email" id="forgot-email" required placeholder="name@gmail.com" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
                 </div>
-                
-                <div id="revealed-password-box" class="hidden bg-emerald-50 border border-emerald-200 p-3.5 rounded-xl text-center space-y-1">
-                    <p class="text-xs text-emerald-800 font-semibold">🎉 ยืนยัน OTP สำเร็จ! รหัสผ่านบัญชีของคุณคือ:</p>
-                    <div id="display-user-pass" class="text-xl font-bold text-emerald-900 tracking-wider bg-white py-2 rounded-lg border border-emerald-200 shadow-inner"></div>
-                </div>
-
-                <button type="submit" id="btn-verify-otp" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition duration-200 text-sm">
-                    ✅ ยืนยันรหัส OTP
-                </button>
-                <button type="button" id="btn-back-login" onclick="switchAuthTab('login')" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2.5 rounded-xl text-xs hidden">
-                    🔑 กลับไปหน้าเข้าสู่ระบบ
+                <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition duration-200 text-sm">
+                    📤 ส่งลิงก์กู้คืนรหัสผ่าน
                 </button>
             </form>
 
             <div class="mt-6 text-center border-t border-gray-100 pt-4 text-xs text-gray-400">
-                Pet's Station Security v4.0
+                Pet's Station Security Hub v4.5
             </div>
         </div>
     </div>
 
 
-    <!-- ================= 2. เลนหลักสำหรับ "พนักงาน" (Staff) ================= -->
-    <div id="app-staff-content" class="hidden flex flex-col min-h-screen">
-        <header class="bg-red-700 text-white shadow-md">
-            <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-                <div class="flex items-center space-x-3">
-                    <span class="bg-white text-red-700 font-bold p-2 rounded-lg shadow text-lg">🐾 Pet's Station</span>
-                    <div>
-                        <h1 class="text-base font-bold">ระบบปฏิบัติการหน้าร้าน & สต็อก (Staff Hub)</h1>
-                        <p class="text-xs text-red-200">ผู้ใช้งาน: <span id="staff-user-display" class="font-semibold underline">พนักงาน</span></p>
-                    </div>
-                </div>
-                <button onclick="handleLogout()" class="bg-red-800 hover:bg-red-900 px-3 py-1.5 rounded-lg text-xs font-semibold">ออกจากระบบ</button>
-            </div>
-        </header>
-        <main class="max-w-7xl mx-auto px-4 py-6 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
-            <div class="lg:col-span-7 bg-white p-6 rounded-2xl shadow-sm border border-red-100">
-                <h2 class="text-base font-bold text-red-700 mb-4">🛒 ระบบขายหน้าร้าน (POS) & นับสต็อก</h2>
-                <div class="grid grid-cols-2 gap-3 mb-4">
-                    <button onclick="addToCart('อาหารแมว Imperial Paw (1kg)', 150)" class="p-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl text-left">
-                        <div class="font-bold text-xs text-red-900">อาหารแมว Imperial Paw</div>
-                        <div class="text-xs text-red-600 font-semibold mt-1">150.00 ฿</div>
-                    </button>
-                </div>
-            </div>
-            <div class="lg:col-span-5 bg-white p-6 rounded-2xl shadow-sm border border-red-100 flex flex-col justify-between">
-                <div>
-                    <h2 class="text-base font-bold text-red-700 mb-3">🧾 ตะกร้าสินค้า</h2>
-                    <div class="overflow-y-auto max-h-[200px] mb-4 border border-gray-100 rounded-xl p-2 text-xs">
-                        <table class="w-full text-left">
-                            <thead><tr class="text-gray-500 border-b"><th class="pb-2">รายการ</th><th class="pb-2 text-center">จำนวน</th><th class="pb-2 text-right">ราคา</th></tr></thead>
-                            <tbody id="cartTableBody"><tr><td colspan="3" class="text-center py-4 text-gray-400">ยังไม่มีสินค้าในตะกร้า</td></tr></tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="border-t pt-4">
-                    <div class="flex justify-between items-center text-sm font-bold mb-3">
-                        <span>ยอดรวม:</span> <span id="cartTotalPrice" class="text-red-600 text-lg">0.00 ฿</span>
-                    </div>
-                    <button onclick="processCheckout()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-xs">ยืนยันการขาย & ตัดสต็อก</button>
-                </div>
-            </div>
-        </main>
-    </div>
-
-
-    <!-- ================= 3. เลนหลักสำหรับ "นักบัญชี" (Accountant Hub - จัดการซื้อ & ค่าใช้จ่าย) ================= -->
-    <div id="app-main-content" class="hidden flex flex-col min-h-screen">
+    <!-- ================= 2. ส่วนหน้าหลัก Role บัญชีและการตรวจสอบ (Audit & Accounting Hub) ================= -->
+    <div id="app-main-content" class="hidden flex flex-col min-h-screen bg-gray-50 text-gray-800">
         <!-- Header -->
         <header class="bg-red-700 text-white shadow-md">
             <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
@@ -464,8 +418,8 @@
         ];
 
         let journalEntries = [
-            { date: "2026-11-07", id: "TX-2026-901", supplier: "บริษัท จรัญกิจ (Imperial Paw)", account: "สินค้าคงเหลือ (Inventory)", creditAcc: "ธนาคาร / เงินสด", amount: 15000, type: "procurement" },
-            { date: "2026-11-07", id: "EXP-2026-089", supplier: "ค่าไฟฟ้าประจำเดือน", account: "ค่าไฟฟ้า (Expense)", creditAcc: "เงินสด / ธนาคาร", amount: 3500, type: "expense" }
+            { date: "2026-11-07", id: "TX-2026-901", supplier: "บริษัท จรัญกิจ (Imperial Paw)", account: "สินค้าคงเหลือ (Inventory - Ministock)", creditAcc: "ธนาคารร้าน (Bank Transfer)", amount: 15000, type: "procurement" },
+            { date: "2026-11-07", id: "EXP-2026-089", supplier: "ค่าไฟฟ้าประจำเดือน", account: "ค่าไฟฟ้า (Expense)", creditAcc: "เงินสด / ธนาคารร้าน", amount: 3500, type: "expense" }
         ];
 
         let currentReportMode = 'monthly';
@@ -475,6 +429,19 @@
             "TX-2026-902": { supplier: "ศรีไพศาลอาหารสัตว์", invoice: "INV-SRI-8892", items: "ทรายแมว Sunpo (100 ถุง)", amount: 28500 },
             "TX-2026-903": { supplier: "Royal Canin Thailand", invoice: "INV-RC-5541", items: "อาหารสุนัขพันธุ์เล็ก (30 แพ็ค)", amount: 42000 }
         };
+
+        // ฟังก์ชันเปิด-ปิดดูรหัสผ่าน ปรับอีโมจิเป็น ตาเปิด (👁️) และ ตาปิด (🔒)
+        function togglePassword(inputId, eyeId) {
+            const inputField = document.getElementById(inputId);
+            const eyeIcon = document.getElementById(eyeId);
+            if (inputField.type === "password") {
+                inputField.type = "text";
+                eyeIcon.innerText = "🔒";
+            } else {
+                inputField.type = "password";
+                eyeIcon.innerText = "👁️";
+            }
+        }
 
         // สลับแท็บหน้า Auth (Login / Register / Forgot)
         function switchAuthTab(tab) {
@@ -488,13 +455,13 @@
 
             if(tab === 'login') {
                 document.getElementById('form-login').classList.remove('hidden');
-                document.getElementById('tab-login-btn').className = "flex-1 py-2 rounded-lg bg-white text-red-700 shadow-sm transition font-semibold";
+                document.getElementById('tab-login-btn').className = "flex-1 py-2.5 rounded-xl bg-white text-red-700 shadow-sm transition font-semibold";
             } else if(tab === 'register') {
                 document.getElementById('form-register').classList.remove('hidden');
-                document.getElementById('tab-register-btn').className = "flex-1 py-2 rounded-lg bg-white text-red-700 shadow-sm transition font-semibold";
+                document.getElementById('tab-register-btn').className = "flex-1 py-2.5 rounded-xl bg-white text-red-700 shadow-sm transition font-semibold";
             } else if(tab === 'forgot') {
                 document.getElementById('form-forgot').classList.remove('hidden');
-                document.getElementById('tab-forgot-btn').className = "flex-1 py-2 rounded-lg bg-white text-red-700 shadow-sm transition font-semibold";
+                document.getElementById('tab-forgot-btn').className = "flex-1 py-2.5 rounded-xl bg-white text-red-700 shadow-sm transition font-semibold";
             }
         }
 
@@ -513,13 +480,12 @@
                 filterJournalByDateRange();
                 updateFinancialStatements();
             } else {
-                // แจ้งเตือนรหัสผิด
                 document.getElementById('error-message-text').innerText = "Google Mail หรือรหัสผ่านไม่ถูกต้อง! (หากยังไม่มีบัญชี ให้กดไปที่แท็บ 'สมัครสมาชิก')";
                 document.getElementById('login-error-alert').classList.remove('hidden');
             }
         }
 
-        // สมัครสมาชิกใหม่ (ใครยังไม่มีให้ไปสมัคร)
+        // สมัครสมาชิกใหม่
         function handleRegister(e) {
             e.preventDefault();
             const name = document.getElementById('reg-name').value.trim();
@@ -537,7 +503,7 @@
             switchAuthTab('login');
         }
 
-        // ขอแก้ไขรหัสผ่าน / ลืมรหัสผ่าน
+        // ลืมรหัสผ่าน
         function handleForgot(e) {
             e.preventDefault();
             const email = document.getElementById('forgot-email').value.trim();
@@ -555,6 +521,7 @@
             document.getElementById('app-main-content').classList.add('hidden');
             document.getElementById('auth-wrapper').classList.remove('hidden');
             document.getElementById('login-pass').value = '';
+            switchAuthTab('login');
         }
 
         // สลับแท็บในระบบหลัก (เมนูนักบัญชี)
@@ -754,307 +721,6 @@
             document.getElementById('bsDynamicAP').innerText = totalAP.toLocaleString('en-US', { minimumFractionDigits: 2 }) + " ฿";
             document.getElementById('bsTotalAsset').innerText = (85000 + totalInventory).toLocaleString('en-US', { minimumFractionDigits: 2 }) + " ฿";
             document.getElementById('bsTotalLE').innerText = (85000 + totalAP).toLocaleString('en-US', { minimumFractionDigits: 2 }) + " ฿";
-        }
-    </script>
-</body>
-</html>
-    <!-- ================= 4. เลนหลักสำหรับ "เถ้าแก่" (Owner Executive Dashboard) ================= -->
-    <div id="app-owner-content" class="hidden flex flex-col min-h-screen">
-        <header class="bg-red-900 text-white shadow-md">
-            <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-                <div class="flex items-center space-x-3">
-                    <span class="bg-white text-red-900 font-bold p-2 rounded-lg shadow text-lg">🐾 Pet's Station</span>
-                    <div>
-                        <h1 class="text-base font-bold">ระบบบริหารภาพรวมธุรกิจ (Owner Executive Dashboard)</h1>
-                        <p class="text-xs text-red-200">ผู้ใช้งาน: <span id="owner-user-display" class="font-semibold underline">เถ้าแก่</span> (สิทธิ์สูงสุด)</p>
-                    </div>
-                </div>
-                <button onclick="handleLogout()" class="bg-red-950 hover:bg-black px-3 py-1.5 rounded-lg text-xs font-semibold">ออกจากระบบ</button>
-            </div>
-        </header>
-        <main class="max-w-7xl mx-auto px-4 py-6 flex-grow grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-red-200">
-                <h3 class="text-xs font-bold text-gray-500 uppercase">ยอดขายรวมสุทธิวันนี้</h3>
-                <div class="text-2xl font-bold text-red-700 mt-2">12,500.00 ฿</div>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-red-200">
-                <h3 class="text-xs font-bold text-gray-500 uppercase">คำสั่งซื้อรออนุมัติ</h3>
-                <div class="text-2xl font-bold text-emerald-700 mt-2">3 รายการ</div>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-red-200">
-                <h3 class="text-xs font-bold text-gray-500 uppercase">สถานะคลังสินค้า</h3>
-                <div class="text-xl font-bold text-gray-800 mt-2">🟢 ปกติ</div>
-            </div>
-        </main>
-    </div>
-
-
-    <!-- ================= 5. JavaScript ควบคุมทั้งหมด ================= -->
-    <script>
-        // ข้อมูลผู้ใช้งานในระบบ
-        let registeredUsers = [
-            { email: "tanwalai@gmail.com", pass: "1234", name: "ธัญวลัย (พนักงาน)", role: "staff" },
-            { email: "bankpetstation@gmail.com", pass: "4321", name: "คุณแบงค์ (นักบัญชี)", role: "accountant" },
-            { email: "pets.station681@gmail.com", pass: "4321", name: "เถ้าแก่ (ผู้บริหารสูงสุด)", role: "owner" }
-        ];
-
-        let currentUser = null;
-        let cartItems = [];
-        let generatedOTP = "";
-        let targetResetEmail = "";
-
-        // ฟังก์ชันเปิด-ปิดดูรหัสผ่าน ปรับอีโมจิเป็น ตาเปิด (👁️) และ ตาปิด/ล็อก (🔒)
-        function togglePassword(inputId, eyeId) {
-            const inputField = document.getElementById(inputId);
-            const eyeIcon = document.getElementById(eyeId);
-            if (inputField.type === "password") {
-                inputField.type = "text";
-                eyeIcon.innerText = "🔒"; // ตาปิด/ล็อก
-            } else {
-                inputField.type = "password";
-                eyeIcon.innerText = "👁️"; // ตาเปิด
-            }
-        }
-
-        function switchAuthTab(tab) {
-            document.getElementById('form-login').classList.add('hidden');
-            document.getElementById('form-forgot').classList.add('hidden');
-            document.getElementById('form-otp-reset').classList.add('hidden');
-            document.getElementById('login-error-alert').classList.add('hidden');
-
-            document.getElementById('tab-login-btn').className = "flex-1 py-2.5 rounded-xl text-gray-600 transition";
-            document.getElementById('tab-forgot-btn').className = "flex-1 py-2.5 rounded-xl text-gray-600 transition";
-
-            if(tab === 'login') {
-                document.getElementById('form-login').classList.remove('hidden');
-                document.getElementById('tab-login-btn').className = "flex-1 py-2.5 rounded-xl bg-white text-red-700 shadow-sm transition font-semibold";
-            } else if(tab === 'forgot') {
-                document.getElementById('form-forgot').classList.remove('hidden');
-                document.getElementById('tab-forgot-btn').className = "flex-1 py-2.5 rounded-xl bg-white text-red-700 shadow-sm transition font-semibold";
-            } else if(tab === 'otp-reset') {
-                document.getElementById('form-otp-reset').classList.remove('hidden');
-                document.getElementById('tab-forgot-btn').className = "flex-1 py-2.5 rounded-xl bg-white text-red-700 shadow-sm transition font-semibold";
-            }
-        }
-
-        // ระบบ Login ควบคุมการเข้าถึงตามสิทธิ์ (Staff / Accountant / Owner)
-        function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value.trim().toLowerCase();
-            const pass = document.getElementById('login-pass').value.trim();
-
-            const found = registeredUsers.find(u => u.email.toLowerCase() === email && u.pass === pass);
-            if(found) {
-                currentUser = found;
-                document.getElementById('auth-wrapper').classList.add('hidden');
-
-                if(found.role === 'staff') {
-                    document.getElementById('staff-user-display').innerText = `${found.name} (${found.email})`;
-                    document.getElementById('app-staff-content').classList.remove('hidden');
-                } else if(found.role === 'accountant') {
-                    document.getElementById('accountant-user-display').innerText = `${found.name} (${found.email})`;
-                    document.getElementById('app-accountant-content').classList.remove('hidden');
-                } else if(found.role === 'owner') {
-                    document.getElementById('owner-user-display').innerText = `${found.name} (${found.email})`;
-                    document.getElementById('app-owner-content').classList.remove('hidden');
-                }
-            } else {
-                document.getElementById('error-message-text').innerText = "Google Mail หรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง";
-                document.getElementById('login-error-alert').classList.remove('hidden');
-            }
-        }
-
-        // ระบบส่ง OTP
-        function handleSendOTP(e) {
-            e.preventDefault();
-            const email = document.getElementById('forgot-email').value.trim().toLowerCase();
-            const found = registeredUsers.find(u => u.email.toLowerCase() === email);
-
-            if(found) {
-                targetResetEmail = email;
-                generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-                
-                alert(`[ระบบจำลอง Email API]\n- ส่งรหัส OTP (${generatedOTP}) ไปยัง ${email} สำเร็จ\n- แจ้งเตือนสำเนาส่งไปยังเถ้าแก่ (pets.station681@gmail.com) เรียบร้อยแล้ว`);
-
-                switchAuthTab('otp-reset');
-                document.getElementById('revealed-password-box').classList.add('hidden');
-                document.getElementById('btn-verify-otp').classList.remove('hidden');
-                document.getElementById('btn-back-login').classList.add('hidden');
-                document.getElementById('otp-input').value = '';
-                document.getElementById('otp-input').disabled = false;
-            } else {
-                document.getElementById('error-message-text').innerText = "ไม่พบ Google Mail นี้ในระบบฐานข้อมูลร้าน";
-                document.getElementById('login-error-alert').classList.remove('hidden');
-            }
-        }
-
-        // ตรวจสอบ OTP
-        function handleVerifyOTP(e) {
-            e.preventDefault();
-            const enteredOTP = document.getElementById('otp-input').value.trim();
-
-            if(enteredOTP !== generatedOTP) {
-                alert('❌ รหัส OTP ไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง');
-                return;
-            }
-
-            const user = registeredUsers.find(u => u.email.toLowerCase() === targetResetEmail);
-            if(user) {
-                document.getElementById('otp-input').disabled = true;
-                document.getElementById('display-user-pass').innerText = user.pass;
-                document.getElementById('revealed-password-box').classList.remove('hidden');
-                document.getElementById('btn-verify-otp').classList.add('hidden');
-                document.getElementById('btn-back-login').classList.remove('hidden');
-            }
-        }
-
-        function handleLogout() {
-            currentUser = null;
-            cartItems = [];
-            document.getElementById('app-staff-content').classList.add('hidden');
-            document.getElementById('app-accountant-content').classList.add('hidden');
-            document.getElementById('app-owner-content').classList.add('hidden');
-            document.getElementById('auth-wrapper').classList.remove('hidden');
-            document.getElementById('login-pass').value = '';
-            switchAuthTab('login');
-        }
-
-        // POS ฟังก์ชันพนักงาน
-        function addToCart(name, price) {
-            const existing = cartItems.find(i => i.name === name);
-            if(existing) { existing.qty += 1; } else { cartItems.push({ name, price, qty: 1 }); }
-            renderCart();
-        }
-
-        function renderCart() {
-            const tbody = document.getElementById('cartTableBody');
-            tbody.innerHTML = '';
-            let total = 0;
-            if(cartItems.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-gray-400">ยังไม่มีสินค้าในตะกร้า</td></tr>`;
-                document.getElementById('cartTotalPrice').innerText = "0.00 ฿";
-                return;
-            }
-            cartItems.forEach(item => {
-                let sum = item.price * item.qty;
-                total += sum;
-                const row = document.createElement('tr');
-                row.innerHTML = `<td class="py-2">${item.name}</td><td class="py-2 text-center">${item.qty}</td><td class="py-2 text-right">${sum.toLocaleString('en-US', { minimumFractionDigits: 2 })} ฿</td>`;
-                tbody.appendChild(row);
-            });
-            document.getElementById('cartTotalPrice').innerText = total.toLocaleString('en-US', { minimumFractionDigits: 2 }) + " ฿";
-        }
-
-        function processCheckout() {
-            alert('บันทึกการขายและตัดสต็อกเรียบร้อย!');
-            cartItems = [];
-            renderCart();
-        }
-
-        // สลับแท็บในระบบนักบัญชี (ระหว่าง บัญชีซื้อสินค้า กับ บัญชีค่าใช้จ่าย)
-        function switchAccountingTab(tabName) {
-            const procForm = document.getElementById('form-section-procurement');
-            const expForm = document.getElementById('form-section-expense');
-            const btnProc = document.getElementById('btn-acc-proc');
-            const btnExp = document.getElementById('btn-acc-exp');
-
-            if(tabName === 'procurement') {
-                procForm.classList.remove('hidden');
-                expForm.classList.add('hidden');
-                btnProc.className = "px-3 py-1.5 text-xs font-bold rounded-lg transition duration-200 bg-white text-red-700 shadow";
-                btnExp.className = "px-3 py-1.5 text-xs font-bold rounded-lg transition duration-200 text-white hover:bg-red-700";
-            } else {
-                procForm.classList.add('hidden');
-                expForm.classList.remove('hidden');
-                btnExp.className = "px-3 py-1.5 text-xs font-bold rounded-lg transition duration-200 bg-white text-red-700 shadow";
-                btnProc.className = "px-3 py-1.5 text-xs font-bold rounded-lg transition duration-200 text-white hover:bg-red-700";
-            }
-        }
-
-        // ฟังก์ชันลงบัญชีซื้อสินค้า (Inventory)
-        function processPurchaseEntry() {
-            const supplier = document.getElementById('supplier').value;
-            const invoiceNo = document.getElementById('invoiceNo').value;
-            const amount = parseFloat(document.getElementById('amount').value) || 0;
-            const paymentTerm = document.getElementById('paymentTerm').value;
-            const isAudited = document.getElementById('auditCheck').checked;
-
-            if(!isAudited) {
-                alert('กรุณาตรวจสอบและติ๊กยืนยันการตรวจสอบเอกสาร (Audit) ก่อนลงบัญชี');
-                return;
-            }
-
-            const formattedAmount = amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            const creditAccName = paymentTerm === 'credit' ? 'เจ้าหนี้การค้า (Accounts Payable)' : 'เงินสด / เงินฝากธนาคาร (Cash / Bank)';
-            const today = new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
-
-            const tbody = document.getElementById('journalTableBody');
-            const newRow = document.createElement('tr');
-            newRow.className = 'hover:bg-gray-50 animate-pulse';
-            
-            newRow.innerHTML = `
-                <td class="p-2.5">
-                    <div class="font-semibold text-gray-800">${today}</div>
-                    <div class="text-[11px] text-gray-500">ซื้อสินค้า: ${supplier} (${invoiceNo})</div>
-                </td>
-                <td class="p-2.5">
-                    <div class="font-medium text-red-700">1. สินค้าคงเหลือ (Inventory)</div>
-                    <div class="text-[11px] text-gray-500 pl-3">เครดิต: ${creditAccName}</div>
-                </td>
-                <td class="p-2.5 text-right font-bold text-gray-900">${formattedAmount}</td>
-                <td class="p-2.5 text-right font-bold text-gray-900">${formattedAmount}</td>
-            `;
-
-            tbody.insertBefore(newRow, tbody.firstChild);
-            setTimeout(() => newRow.classList.remove('animate-pulse'), 1000);
-
-            document.getElementById('totalDebit').innerText = formattedAmount;
-            document.getElementById('totalCredit').innerText = formattedAmount;
-            document.getElementById('entryStatus').innerText = 'ลงบัญชีซื้อสำเร็จ (Posted)';
-            document.getElementById('entryStatus').className = 'text-xs bg-red-100 text-red-800 px-3 py-1 rounded-full font-semibold border border-red-300';
-        }
-
-        // ฟังก์ชันลงบัญชีค่าใช้จ่าย (Expenses)
-        function processExpenseEntry() {
-            const category = document.getElementById('expenseCategory').value;
-            const refNo = document.getElementById('expRefNo').value;
-            const amount = parseFloat(document.getElementById('expAmount').value) || 0;
-            const paymentMethod = document.getElementById('expPaymentMethod').value;
-            const isAudited = document.getElementById('expAuditCheck').checked;
-
-            if(!isAudited) {
-                alert('กรุณายืนยันการตรวจสอบความถูกต้องของรายการก่อนลงบัญชี');
-                return;
-            }
-
-            const formattedAmount = amount.toLocaleString('en-US', { minimumFractionDigits: `2` });
-            const creditAccName = paymentMethod === 'cash' ? 'เงินสด / เงินฝากธนาคาร (Cash / Bank)' : 'เจ้าหนี้อื่น / ค้างจ่าย (Other AP)';
-            const today = new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
-
-            const tbody = document.getElementById('journalTableBody');
-            const newRow = document.createElement('tr');
-            newRow.className = 'hover:bg-gray-50 animate-pulse';
-            
-            newRow.innerHTML = `
-                <td class="p-2.5">
-                    <div class="font-semibold text-gray-800">${today}</div>
-                    <div class="text-[11px] text-gray-500">${category} (${refNo})</div>
-                </td>
-                <td class="p-2.5">
-                    <div class="font-medium text-red-700">1. ${category}</div>
-                    <div class="text-[11px] text-gray-500 pl-3">เครดิต: ${creditAccName}</div>
-                </td>
-                <td class="p-2.5 text-right font-bold text-gray-900">${formattedAmount}</td>
-                <td class="p-2.5 text-right font-bold text-gray-900">${formattedAmount}</td>
-            `;
-
-            tbody.insertBefore(newRow, tbody.firstChild);
-            setTimeout(() => newRow.classList.remove('animate-pulse'), 1000);
-
-            document.getElementById('totalDebit').innerText = formattedAmount;
-            document.getElementById('totalCredit').innerText = formattedAmount;
-            document.getElementById('entryStatus').innerText = 'ลงบัญชีค่าใช้จ่ายสำเร็จ (Posted)';
-            document.getElementById('entryStatus').className = 'text-xs bg-red-100 text-red-800 px-3 py-1 rounded-full font-semibold border border-red-300';
         }
     </script>
 </body>

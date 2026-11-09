@@ -10,29 +10,28 @@
         body { font-family: 'Sarabun', sans-serif; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+<body class="bg-gradient-to-br from-red-900 via-red-800 to-black text-gray-800 min-h-screen flex flex-col">
 
     <!-- ================= 1. ส่วนหน้าล็อกอิน & ระบบ OTP ลืมรหัสผ่าน ================= -->
-    <div id="auth-wrapper" class="fixed inset-0 bg-red-900/90 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-red-100 p-8 transform transition-all">
+    <div id="auth-wrapper" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-md">
+        <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-red-100 p-8 transform transition-all">
             
             <!-- Logo & Store Header -->
             <div class="text-center mb-6">
-                <div class="inline-block bg-red-700 text-white font-bold p-3 rounded-2xl shadow-md text-2xl mb-2">🐾 Pet's Station</div>
-                <h2 class="text-xl font-bold text-gray-900">ระบบจัดการร้านสถานีสัตว์เลี้ยง</h2>
-                <p class="text-xs text-gray-500 mt-1">สุราษฎร์ธานี (Surat Thani)</p>
+                <div class="inline-block bg-gradient-to-r from-red-600 to-red-700 text-white font-bold p-3.5 rounded-2xl shadow-lg text-2xl mb-2">🐾 Pet's Station</div>
+                <h2 class="text-xl font-extrabold text-gray-900">ระบบจัดการร้านสถานีสัตว์เลี้ยง</h2>
+                <p class="text-xs text-red-600 font-medium mt-1">สุราษฎร์ธานี (Surat Thani)</p>
             </div>
 
             <!-- Error / Success Notification Alert -->
-            <div id="login-error-alert" class="hidden mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
+            <div id="login-error-alert" class="hidden mb-4 p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs rounded-2xl flex items-center gap-2 shadow-sm">
                 <span>⚠️</span> <span id="error-message-text">อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง</span>
             </div>
 
-            <!-- Tab Switcher -->
-            <div class="flex bg-gray-100 p-1 rounded-xl mb-6 text-xs font-semibold">
-                <button onclick="switchAuthTab('login')" id="tab-login-btn" class="flex-1 py-2 rounded-lg bg-white text-red-700 shadow-sm transition">เข้าสู่ระบบ</button>
-                <button onclick="switchAuthTab('register')" id="tab-register-btn" class="flex-1 py-2 rounded-lg text-gray-600 transition">สมัครด้วย Gmail</button>
-                <button onclick="switchAuthTab('forgot')" id="tab-forgot-btn" class="flex-1 py-2 rounded-lg text-gray-600 transition">ลืมรหัสผ่าน</button>
+            <!-- Tab Switcher (เหลือแค่ เข้าสู่ระบบ กับ ลืมรหัสผ่าน) -->
+            <div class="flex bg-gray-100 p-1.5 rounded-2xl mb-6 text-xs font-semibold">
+                <button onclick="switchAuthTab('login')" id="tab-login-btn" class="flex-1 py-2.5 rounded-xl bg-white text-red-700 shadow-sm transition">เข้าสู่ระบบ</button>
+                <button onclick="switchAuthTab('forgot')" id="tab-forgot-btn" class="flex-1 py-2.5 rounded-xl text-gray-600 transition">ลืมรหัสผ่าน</button>
             </div>
 
             <!-- Form: Login -->
@@ -50,83 +49,51 @@
                         </button>
                     </div>
                 </div>
-                <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-md transition duration-200 text-sm flex items-center justify-center gap-2">
+                <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition duration-200 text-sm flex items-center justify-center gap-2">
                     <span>🔐</span> เข้าสู่ระบบ
-                </button>
-            </form>
-
-            <!-- Form: Register (Whitelist) -->
-            <form id="form-register" onsubmit="handleRegister(event)" class="space-y-4 hidden">
-                <div class="bg-amber-50 border border-amber-200 p-2.5 rounded-xl text-[11px] text-amber-800">
-                    ℹ️ ระบบจำกัดการสมัคร: เฉพาะอีเมลที่ได้รับอนุมัติ (Whitelist) เท่านั้น
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">ชื่อ-นามสกุล</label>
-                    <input type="text" id="reg-name" required placeholder="ธัญวลัย โอบนิธิพันธ์" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Google Mail (Gmail)</label>
-                    <input type="email" id="reg-email" required placeholder="tanwalai@gmail.com" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">เลือกบทบาทสิทธิ์ (Role)</label>
-                    <select id="reg-role" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none font-semibold text-red-700">
-                        <option value="staff">พนักงาน (คนขาย / นับสต็อก)</option>
-                        <option value="accountant">นักบัญชี</option>
-                        <option value="owner">เถ้าแก่ (ผู้บริหารสูงสุด)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">กำหนดรหัสผ่าน</label>
-                    <div class="relative">
-                        <input type="password" id="reg-pass" required placeholder="••••••••" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none pr-10">
-                        <button type="button" onclick="togglePassword('reg-pass', 'eye-reg')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none">
-                            <span id="eye-reg">👁️</span>
-                        </button>
-                    </div>
-                </div>
-                <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-md transition duration-200 text-sm">
-                    ✨ สมัครสมาชิกด้วย Google Mail
                 </button>
             </form>
 
             <!-- Form: Forgot Password (Step 1: ขอรับ OTP) -->
             <form id="form-forgot" onsubmit="handleSendOTP(event)" class="space-y-4 hidden">
-                <p class="text-xs text-gray-600">กรอก Google Mail ของคุณ ระบบจะทำการส่งรหัส OTP 6 หลักไปให้เพื่อยืนยันตัวตน</p>
+                <p class="text-xs text-gray-600 bg-red-50 p-3 rounded-xl border border-red-100">💡 กรอกอีเมลของคุณ ระบบจะส่งรหัส OTP ไปยังอีเมลของคุณ และส่งแจ้งเตือนไปยังอีเมลเถ้าแก่ (<span class="font-semibold text-red-700">pets.station681@gmail.com</span>)</p>
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">Google Mail (Gmail)</label>
                     <input type="email" id="forgot-email" required placeholder="name@gmail.com" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
                 </div>
-                <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-md transition duration-200 text-sm">
-                    📤 ส่งรหัส OTP ไปยัง Google Mail
+                <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition duration-200 text-sm">
+                    📤 ส่งรหัส OTP ยืนยันตัวตน
                 </button>
             </form>
 
-            <!-- Form: Verify OTP & Reset Password (Step 2: กรอก OTP และเปลี่ยนรหัสผ่านใหม่) -->
-            <form id="form-otp-reset" onsubmit="handleVerifyAndReset(event)" class="space-y-4 hidden">
-                <div class="bg-blue-50 border border-blue-200 p-2.5 rounded-xl text-[11px] text-blue-800">
-                    ✉️ ระบบได้ส่งรหัส OTP ไปยังอีเมลของคุณแล้ว (รหัสทดสอบแสดงในกล่องข้อความด้านบน)
+            <!-- Form: Verify OTP & Show Password (Step 2: กรอก OTP และแสดงรหัสผ่านเดิม) -->
+            <form id="form-otp-reset" onsubmit="handleVerifyOTP(event)" class="space-y-4 hidden">
+                <div class="bg-blue-50 border border-blue-200 p-3 rounded-xl text-[11px] text-blue-800 space-y-1">
+                    <p class="font-semibold">✉️ ส่งรหัส OTP สำเร็จ!</p>
+                    <p>- ส่งไปที่อีเมลผู้ขอเรียบร้อยแล้ว</p>
+                    <p>- 🚨 แจ้งเตือนส่งไปยังอีเมลเถ้าแก่ (pets.station681@gmail.com) แล้ว</p>
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">กรอกรหัส OTP (6 หลัก)</label>
                     <input type="text" id="otp-input" required maxlength="6" placeholder="123456" class="w-full border border-gray-300 rounded-xl p-3 text-center tracking-widest font-bold text-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
                 </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">กำหนดรหัสผ่านใหม่</label>
-                    <div class="relative">
-                        <input type="password" id="new-password" required placeholder="••••••••" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none pr-10">
-                        <button type="button" onclick="togglePassword('new-password', 'eye-new')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none">
-                            <span id="eye-new">👁️</span>
-                        </button>
-                    </div>
+                
+                <!-- ส่วนแสดงผลรหัสผ่านหลังจากยืนยัน OTP สำเร็จ -->
+                <div id="revealed-password-box" class="hidden bg-emerald-50 border border-emerald-200 p-3.5 rounded-xl text-center space-y-1">
+                    <p class="text-xs text-emerald-800 font-semibold">🎉 ยืนยัน OTP สำเร็จ! รหัสผ่านบัญชีของคุณคือ:</p>
+                    <div id="display-user-pass" class="text-xl font-bold text-emerald-900 tracking-wider bg-white py-2 rounded-lg border border-emerald-200 shadow-inner"></div>
                 </div>
-                <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-md transition duration-200 text-sm">
-                    🔄 ยืนยันเปลี่ยนรหัสผ่านใหม่
+
+                <button type="submit" id="btn-verify-otp" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition duration-200 text-sm">
+                    ✅ ยืนยันรหัส OTP
+                </button>
+                <button type="button" id="btn-back-login" onclick="switchAuthTab('login')" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2.5 rounded-xl text-xs hidden">
+                    🔑 กลับไปหน้าเข้าสู่ระบบ
                 </button>
             </form>
 
             <div class="mt-6 text-center border-t border-gray-100 pt-4 text-xs text-gray-400">
-                Pet's Station OTP Security v3.0
+                Pet's Station Security v4.0
             </div>
         </div>
     </div>
@@ -233,19 +200,14 @@
 
     <!-- ================= 5. JavaScript ควบคุม Flow ================= -->
     <script>
-        const allowedWhitelistEmails = [
-            "tanwalai@gmail.com",
-            "bankpetstation@gmail.com",
-            "Tanwalai2544@gmail.com"
+        // ข้อมูลผู้ใช้งานตามที่กำหนด
+        let registeredUsers = [
+            { email: "tanwalai@gmail.com", pass: "1234", name: "ธัญวลัย (พนักงาน)", role: "staff" },
+            { email: "bankpetstation@gmail.com", pass: "4321", name: "คุณแบงค์ (นักบัญชี)", role: "accountant" },
+            { email: "pets.station681@gmail.com", pass: "4321", name: "เถ้าแก่ (ผู้บริหารสูงสุด)", role: "owner" }
         ];
 
         let currentUser = null;
-        let registeredUsers = [
-            { email: "tanwalai@gmail.com", pass: "123456", name: "ธัญวลัย (เถ้าแก่)", role: "owner" },
-            { email: "bankpetstation@gmail.com", pass: "123456", name: "คุณแบงค์ (นักบัญชี)", role: "accountant" },
-            { email: "Tanwalai2544@gmail.com", pass: "123456", name: "ทีมงาน (พนักงาน)", role: "staff" }
-        ];
-
         let cartItems = [];
         let generatedOTP = "";
         let targetResetEmail = "";
@@ -265,27 +227,22 @@
 
         function switchAuthTab(tab) {
             document.getElementById('form-login').classList.add('hidden');
-            document.getElementById('form-register').classList.add('hidden');
             document.getElementById('form-forgot').classList.add('hidden');
             document.getElementById('form-otp-reset').classList.add('hidden');
             document.getElementById('login-error-alert').classList.add('hidden');
 
-            document.getElementById('tab-login-btn').className = "flex-1 py-2 rounded-lg text-gray-600 transition";
-            document.getElementById('tab-register-btn').className = "flex-1 py-2 rounded-lg text-gray-600 transition";
-            document.getElementById('tab-forgot-btn').className = "flex-1 py-2 rounded-lg text-gray-600 transition";
+            document.getElementById('tab-login-btn').className = "flex-1 py-2.5 rounded-xl text-gray-600 transition";
+            document.getElementById('tab-forgot-btn').className = "flex-1 py-2.5 rounded-xl text-gray-600 transition";
 
             if(tab === 'login') {
                 document.getElementById('form-login').classList.remove('hidden');
-                document.getElementById('tab-login-btn').className = "flex-1 py-2 rounded-lg bg-white text-red-700 shadow-sm transition font-semibold";
-            } else if(tab === 'register') {
-                document.getElementById('form-register').classList.remove('hidden');
-                document.getElementById('tab-register-btn').className = "flex-1 py-2 rounded-lg bg-white text-red-700 shadow-sm transition font-semibold";
+                document.getElementById('tab-login-btn').className = "flex-1 py-2.5 rounded-xl bg-white text-red-700 shadow-sm transition font-semibold";
             } else if(tab === 'forgot') {
                 document.getElementById('form-forgot').classList.remove('hidden');
-                document.getElementById('tab-forgot-btn').className = "flex-1 py-2 rounded-lg bg-white text-red-700 shadow-sm transition font-semibold";
+                document.getElementById('tab-forgot-btn').className = "flex-1 py-2.5 rounded-xl bg-white text-red-700 shadow-sm transition font-semibold";
             } else if(tab === 'otp-reset') {
                 document.getElementById('form-otp-reset').classList.remove('hidden');
-                document.getElementById('tab-forgot-btn').className = "flex-1 py-2 rounded-lg bg-white text-red-700 shadow-sm transition font-semibold";
+                document.getElementById('tab-forgot-btn').className = "flex-1 py-2.5 rounded-xl bg-white text-red-700 shadow-sm transition font-semibold";
             }
         }
 
@@ -316,35 +273,7 @@
             }
         }
 
-        // ระบบสมัครสมาชิก (Whitelist)
-        function handleRegister(e) {
-            e.preventDefault();
-            const name = document.getElementById('reg-name').value.trim();
-            const email = document.getElementById('reg-email').value.trim().toLowerCase();
-            const role = document.getElementById('reg-role').value;
-            const pass = document.getElementById('reg-pass').value.trim();
-
-            const isAuthorized = allowedWhitelistEmails.some(allowed => allowed.toLowerCase() === email);
-            if(!isAuthorized) {
-                document.getElementById('error-message-text').innerText = "⚠️ ต้องมีสิทธิ์ก่อนเลย! อีเมลนี้ไม่ได้รับอนุญาตให้ลงทะเบียนระบบร้านสถานีสัตว์เลี้ยง";
-                document.getElementById('login-error-alert').classList.remove('hidden');
-                switchAuthTab('login');
-                return;
-            }
-
-            if(registeredUsers.some(u => u.email.toLowerCase() === email)) {
-                alert('อีเมลนี้มีบัญชีในระบบอยู่แล้ว กรุณาเข้าสู่ระบบ');
-                switchAuthTab('login');
-                return;
-            }
-
-            registeredUsers.push({ email, pass, name, role });
-            alert('ลงทะเบียนด้วย Google Mail สำเร็จ! กรุณาเข้าสู่ระบบ');
-            document.getElementById('login-email').value = email;
-            switchAuthTab('login');
-        }
-
-        // ขั้นตอนที่ 1: ตรวจสอบอีเมล และส่งรหัส OTP
+        // ส่ง OTP และแจ้งเตือนไปยังเมลผู้ขอ & เมลเถ้าแก่
         function handleSendOTP(e) {
             e.preventDefault();
             const email = document.getElementById('forgot-email').value.trim().toLowerCase();
@@ -352,38 +281,43 @@
 
             if(found) {
                 targetResetEmail = email;
-                // สุ่มสร้างรหัส OTP 6 หลัก
                 generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
                 
-                // แสดงหน้าจอให้กรอก OTP พร้อมแสดงรหัส OTP จำลองให้เห็นชัดเจน
+                // จำลองการแจ้งเตือนส่งไปที่อีเมลผู้ขอและอีเมลเถ้าแก่ (pets.station681@gmail.com)
+                alert(`[ระบบจำลอง Email API]\n- ส่งรหัส OTP (${generatedOTP}) ไปยัง ${email} สำเร็จ\n- แจ้งเตือนสำเนาส่งไปยังเถ้าแก่ (pets.station681@gmail.com) เรียบร้อยแล้ว`);
+
+                // สลับไปหน้าจอใส่ OTP
                 switchAuthTab('otp-reset');
-                document.getElementById('error-message-text').innerText = `🔐 [ระบบจำลองส่ง OTP ไปที่ ${email}] รหัส OTP ของคุณคือ: ${generatedOTP}`;
-                document.getElementById('login-error-alert').classList.remove('hidden');
+                document.getElementById('revealed-password-box').classList.add('hidden');
+                document.getElementById('btn-verify-otp').classList.remove('hidden');
+                document.getElementById('btn-back-login').classList.add('hidden');
+                document.getElementById('otp-input').value = '';
+                document.getElementById('otp-input').disabled = false;
             } else {
                 document.getElementById('error-message-text').innerText = "ไม่พบ Google Mail นี้ในระบบฐานข้อมูลร้าน กรุณาตรวจสอบอีกครั้ง";
                 document.getElementById('login-error-alert').classList.remove('hidden');
             }
         }
 
-        // ขั้นตอนที่ 2: ตรวจสอบความถูกต้องของ OTP และเปลี่ยนรหัสผ่านใหม่
-        function handleVerifyAndReset(e) {
+        // ตรวจสอบ OTP และแสดงรหัสผ่านของบัญชีนั้นๆ
+        function handleVerifyOTP(e) {
             e.preventDefault();
             const enteredOTP = document.getElementById('otp-input').value.trim();
-            const newPass = document.getElementById('new-password').value.trim();
 
             if(enteredOTP !== generatedOTP) {
-                document.getElementById('error-message-text').innerText = "❌ รหัส OTP ไม่ถูกต้อง กรุณาตรวจสอบใหม่อีกครั้ง";
-                document.getElementById('login-error-alert').classList.remove('hidden');
+                alert('❌ รหัส OTP ไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง');
                 return;
             }
 
-            // ค้นหาผู้ใช้และเปลี่ยนรหัสผ่านใหม่
+            // ค้นหาบัญชีผู้ใช้เพื่อแสดงรหัสผ่าน
             const user = registeredUsers.find(u => u.email.toLowerCase() === targetResetEmail);
             if(user) {
-                user.pass = newPass;
-                alert('🎉 เปลี่ยนรหัสผ่านใหม่สำเร็จ! กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่ของคุณ');
-                document.getElementById('login-email').value = targetResetEmail;
-                switchAuthTab('login');
+                // ซ่อนช่องกรอก OTP และแสดงรหัสผ่าน
+                document.getElementById('otp-input').disabled = true;
+                document.getElementById('display-user-pass').innerText = user.pass;
+                document.getElementById('revealed-password-box').classList.remove('hidden');
+                document.getElementById('btn-verify-otp').classList.add('hidden');
+                document.getElementById('btn-back-login').classList.remove('hidden');
             }
         }
 

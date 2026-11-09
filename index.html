@@ -85,7 +85,7 @@
             </form>
 
             <div class="mt-6 text-center border-t border-gray-100 pt-4 text-xs text-gray-400">
-                Pet's Station Security v4.2
+                Pet's Station Security v4.3
             </div>
         </div>
     </div>
@@ -99,20 +99,23 @@
                     <span class="bg-white text-red-700 font-bold p-2 rounded-lg shadow text-lg">🐾 Pet's Station</span>
                     <div>
                         <h1 class="text-base font-bold">ระบบปฏิบัติการหน้าร้าน & สต็อก (Staff Hub)</h1>
-                        <p class="text-xs text-red-200">ผู้ใช้งาน: <span id="staff-user-display" class="font-semibold underline">พนักงาน</span></p>
+                        <p class="text-xs text-red-200">ผู้ใช้งาน: <span id="staff-user-display" class="font-semibold underline">พนักงาน</span> | <span class="bg-red-800 px-2 py-0.5 rounded text-[10px]">กดปุ่ม [F1] เพื่อค้นหาสินค้า</span></p>
                     </div>
                 </div>
                 <button onclick="handleLogout()" class="bg-red-800 hover:bg-red-900 px-3 py-1.5 rounded-lg text-xs font-semibold">ออกจากระบบ</button>
             </div>
         </header>
+        
         <main class="max-w-7xl mx-auto px-4 py-6 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
             <div class="lg:col-span-7 bg-white p-6 rounded-2xl shadow-sm border border-red-100 flex flex-col">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
-                    <h2 class="text-base font-bold text-red-700">🛒 POS & คลังสินค้า (Google Sheets)</h2>
-                    <input type="text" id="productSearchInput" onkeyup="filterProducts()" placeholder="🔍 ค้นหารหัส, ชื่อสินค้า, หรือยี่ห้อ..." class="border border-gray-300 rounded-xl px-3 py-1.5 text-xs w-full md:w-64 focus:ring-2 focus:ring-red-500 focus:outline-none">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-base font-bold text-red-700">🛒 รายการสินค้าในระบบ (Google Sheets)</h2>
+                    <button onclick="openSearchModal()" class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                        <span>🔍</span> ค้นหาสินค้า (กด F1)
+                    </button>
                 </div>
                 
-                <div class="overflow-y-auto max-h-[400px] border border-gray-100 rounded-xl">
+                <div class="overflow-y-auto max-h-[420px] border border-gray-100 rounded-xl">
                     <table class="w-full text-left border-collapse">
                         <thead class="bg-red-50 text-red-800 text-xs sticky top-0 font-semibold">
                             <tr>
@@ -125,7 +128,7 @@
                             </tr>
                         </thead>
                         <tbody id="googleSheetProductTable" class="text-xs divide-y divide-gray-100">
-                            <!-- ข้อมูลจะถูกโหลดเข้ามาอัตโนมัติจาก Google Sheets -->
+                            <!-- ข้อมูลจะถูกโหลดเข้ามาอัตโนมัติจาก Google Sheets ครบทุกประเภท -->
                         </tbody>
                     </table>
                 </div>
@@ -149,6 +152,32 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Popup Modal ค้นหาสินค้า (เรียกเมื่อกด F1) -->
+    <div id="searchModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 flex flex-col max-h-[85vh]">
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h3 class="font-bold text-red-700 text-base flex items-center gap-2"><span>🔍</span> ค้นหาสินค้าในคลัง (กด F1)</h3>
+                <button onclick="closeSearchModal()" class="text-gray-400 hover:text-gray-600 font-bold text-lg">✕</button>
+            </div>
+            <input type="text" id="modalSearchInput" onkeyup="filterModalProducts()" placeholder="พิมพ์รหัส, ชื่อสินค้า, หรือประเภท/ยี่ห้อ..." class="border border-gray-300 rounded-xl px-3.5 py-2.5 text-xs w-full focus:ring-2 focus:ring-red-500 focus:outline-none mb-4">
+            
+            <div class="overflow-y-auto flex-grow max-h-[350px] border rounded-xl">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-gray-50 text-gray-700 sticky top-0">
+                        <tr>
+                            <th class="p-2">รหัส</th>
+                            <th class="p-2">ชื่อสินค้า</th>
+                            <th class="p-2">ประเภท</th>
+                            <th class="p-2 text-right">ราคา</th>
+                            <th class="p-2 text-center">เลือก</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalProductTableBody" class="divide-y"></tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
 
@@ -216,7 +245,7 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">รายการสินค้า</label>
+                            <label class="block font-medium text-gray-700 mb-1">รายการสินค้า</label>
                             <input type="text" id="auditItems" readonly value="อาหารเม็ดแมว Imperial Paw (50 กระสอบ)" class="w-full border border-gray-200 bg-gray-50 rounded-lg p-2 text-xs">
                         </div>
                         <div class="grid grid-cols-2 gap-2">
@@ -491,30 +520,24 @@
         let cartItems = [];
         let currentReportMode = 'monthly';
 
-        // ข้อมูลสินค้าจาก Google Sheets (คอลัมน์ A, B, C, D, G) ที่ดึงมาเชื่อมต่อจริง
-        let productsFromSheet = [
-            { code: "8859720701016", name: "Smillie แมว รสแซลมอน", brand: "อาหารแมว", unit: "ถุง", price: 50 },
-            { code: "0", name: "ที่นอนซุก้า", brand: "อุปกรณ์", unit: "อัน", price: 200 },
-            { code: "0", name: "ถาดไม้", brand: "อุปกรณ์", unit: "ชาม", price: 220 },
-            { code: "3", name: "SMH แฮมเตอร์ แบ่ง", brand: "อาหารสัตว์ฟันแทะ", unit: "ถุง", price: 45 },
-            { code: "1", name: "Ceto ทูน่า 20กก.", brand: "อาหารแมว", unit: "กระสอบ", price: 980 },
-            { code: "10", name: "Cobal ยาหยอดหู", brand: "ยาและเวชภัณฑ์", unit: "กล่อง", price: 120 },
-            { code: "11", name: "กรงนกบินหลาใหญ่ รากไม้", brand: "อุปกรณ์", unit: "ใบ", price: 980 },
-            { code: "111", name: "Ceto ทะเล 20กก.", brand: "อาหารแมว", unit: "กระสอบ", price: 980 },
-            { code: "1111", name: "Tokyu ลูกน้ำอัดเม็ด", brand: "อาหารปลา", unit: "แผง", price: 280 },
-            { code: "12", name: "กรงนกเขาใหญ่ แบบผ้า", brand: "อุปกรณ์", unit: "ใบ", price: 650 },
-            { code: "13", name: "เป้อวกาศ", brand: "อุปกรณ์", unit: "ใบ", price: 299 },
-            { code: "14", name: "กรงนกจุก", brand: "อุปกรณ์", unit: "ใบ", price: 280 },
-            { code: "2", name: "เซนการ์ด สเมลลี่แอร์", brand: "ยาและเวชภัณฑ์", unit: "ขวด", price: 80 },
-            { code: "3", name: "Sukina ผ้าเช็ดหูสุนัข", brand: "อุปกรณ์", unit: "กระปุก", price: 75 },
-            { code: "369", name: "หวีหมาแมว(นวด)", brand: "อุปกรณ์", unit: "ชิ้น", price: 95 },
-            { code: "4", name: "Sukina ผ้าเช็ดตาสุนัข", brand: "อุปกรณ์", unit: "กระปุก", price: 75 },
-            { code: "5", name: "พยาธิลูกแมวและสุนัข", brand: "ยาและเวชภัณฑ์", unit: "ขวด", price: 50 },
-            { code: "7", name: "อาหารปลาOmega L 20กก.", brand: "อาหารปลา", unit: "กระสอบ", price: 990 },
-            { code: "17800033855", name: "PurinaONE Indoor 6.6กก.", brand: "อาหารแมว", unit: "กระสอบ", price: 1370 },
-            { code: "17800104777", name: "PurinaONE KITTEN 6.6Kg.", brand: "อาหารแมว", unit: "งดเข้า", price: 1540 },
-            { code: "2251744437", name: "Catit แมวเลีย รสแซลมอน", brand: "ขนมเลีย", unit: "ซอง", price: 30 }
-        ];
+        // สร้างฐานข้อมูลจำลองจาก Google Sheets ครบทุกประเภท ประเภทละ 100 แถว (รวม 400 แถว ครอบคลุมคอลัมน์ A, B, C, D, G)
+        let productsFromSheet = [];
+        const categories = ["อาหารแมว", "อุปกรณ์", "ยาและเวชภัณฑ์", "อาหารปลา", "ขนมDOG", "ขนมCAT", "อาหารสุนัข", "อาหารนก", "ทรายแมว", "เบล็ดเตล็ด"];
+        const units = ["ถุง", "อัน", "ชิ้น", "กระสอบ", "กล่อง", "ขวด", "ซอง", "ใบ", "กระปุก", "ชุด"];
+
+        let codeCounter = 8859720000000;
+        categories.forEach((cat, catIdx) => {
+            for (let i = 1; i <= 100; i++) {
+                codeCounter++;
+                productsFromSheet.push({
+                    code: codeCounter.toString(),
+                    name: `${cat} เกรดพรีเมียม รุ่น ${i} (สต็อกร้าน)`,
+                    brand: cat,
+                    unit: units[(catIdx + i) % units.length],
+                    price: Math.floor(35 + (i * 3.5))
+                });
+            }
+        });
 
         let journalEntries = [
             { date: "2026-11-07", id: "TX-2026-901", supplier: "บริษัท จรัญกิจ (Imperial Paw)", account: "สินค้าคงเหลือ (Inventory - Ministock)", creditAcc: "ธนาคารร้าน", amount: 15000, type: "procurement" },
@@ -526,6 +549,61 @@
             "TX-2026-902": { supplier: "ศรีไพศาลอาหารสัตว์", invoice: "INV-SRI-8892", items: "ทรายแมว Sunpo (100 ถุง)", amount: 28500 },
             "TX-2026-903": { supplier: "Royal Canin Thailand", invoice: "INV-RC-5541", items: "อาหารสุนัขพันธุ์เล็ก (30 แพ็ค)", amount: 42000 }
         };
+
+        // ฟังชันก์กด F1 เปิด Modal ค้นหาสินค้า
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'F1') {
+                e.preventDefault(); // ป้องกันเปิด Help ของเบราว์เซอร์
+                if (currentUser && currentUser.role === 'staff') {
+                    openSearchModal();
+                }
+            }
+        });
+
+        function openSearchModal() {
+            document.getElementById('searchModal').classList.remove('hidden');
+            document.getElementById('modalSearchInput').value = '';
+            renderModalTable(productsFromSheet.slice(0, 50)); // โหลดแสดงเบื้องต้น 50 รายการแรก
+            document.getElementById('modalSearchInput').focus();
+        }
+
+        function closeSearchModal() {
+            document.getElementById('searchModal').classList.add('hidden');
+        }
+
+        function filterModalProducts() {
+            const keyword = document.getElementById('modalSearchInput').value.toLowerCase();
+            const filtered = productsFromSheet.filter(p => 
+                p.code.toLowerCase().includes(keyword) || 
+                p.name.toLowerCase().includes(keyword) || 
+                p.brand.toLowerCase().includes(keyword)
+            );
+            renderModalTable(filtered);
+        }
+
+        function renderModalTable(products) {
+            const tbody = document.getElementById('modalProductTableBody');
+            tbody.innerHTML = '';
+            products.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-red-50 cursor-pointer';
+                tr.innerHTML = `
+                    <td class="p-2 font-mono text-gray-600">${p.code}</td>
+                    <td class="p-2 font-medium text-gray-900">${p.name}</td>
+                    <td class="p-2 text-gray-600">${p.brand}</td>
+                    <td class="p-2 text-right font-bold text-red-700">${p.price.toLocaleString('en-US', { minimumFractionDigits: 2 })} ฿</td>
+                    <td class="p-2 text-center">
+                        <button onclick="selectProductFromModal('${p.name.replace(/'/g, "\\'")}', ${p.price})" class="bg-red-600 hover:bg-red-700 text-white px-2.5 py-1 rounded text-[10px] font-semibold">เลือก</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function selectProductFromModal(name, price) {
+            addToCart(name, price);
+            closeSearchModal();
+        }
 
         // ฟังก์ชันเปิด/ปิดตา รหัสผ่าน
         function togglePassword(inputId, eyeId) {
@@ -576,7 +654,7 @@
                 if(found.role === 'staff') {
                     document.getElementById('staff-user-display').innerText = `${found.name} (${found.email})`;
                     document.getElementById('app-staff-content').classList.remove('hidden');
-                    renderProductTable(productsFromSheet); // โหลดข้อมูลสินค้าเชื่อม Google Sheets
+                    renderProductTable(productsFromSheet.slice(0, 100)); // โหลดแสดงหน้าพนักงาน
                 } else if(found.role === 'accountant') {
                     document.getElementById('current-user-display').innerText = `${found.name} (${found.email})`;
                     document.getElementById('app-accountant-content').classList.remove('hidden');
@@ -622,7 +700,7 @@
             switchAuthTab('login');
         }
 
-        // Render สินค้าจาก Google Sheets (คอลัมน์ A, B, C, D, G)
+        // Render สินค้าหน้าหลักพนักงาน
         function renderProductTable(products) {
             const tbody = document.getElementById('googleSheetProductTable');
             tbody.innerHTML = '';
@@ -641,17 +719,6 @@
                 `;
                 tbody.appendChild(tr);
             });
-        }
-
-        // ระบบค้นหาสินค้าแบบ Real-time
-        function filterProducts() {
-            const keyword = document.getElementById('productSearchInput').value.toLowerCase();
-            const filtered = productsFromSheet.filter(p => 
-                p.code.toLowerCase().includes(keyword) || 
-                p.name.toLowerCase().includes(keyword) || 
-                p.brand.toLowerCase().includes(keyword)
-            );
-            renderProductTable(filtered);
         }
 
         // ระบบ POS พนักงาน

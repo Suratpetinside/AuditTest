@@ -12,7 +12,7 @@
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
-    <!-- ================= 1. ส่วนหน้าล็อกอิน (Google Mail & Authentication with Roles) ================= -->
+    <!-- ================= 1. ส่วนหน้าล็อกอิน (Google Mail & Whitelist Authentication) ================= -->
     <div id="auth-wrapper" class="fixed inset-0 bg-red-900/90 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-red-100 p-8 transform transition-all">
             
@@ -31,7 +31,7 @@
             <!-- Tab Switcher -->
             <div class="flex bg-gray-100 p-1 rounded-xl mb-6 text-xs font-semibold">
                 <button onclick="switchAuthTab('login')" id="tab-login-btn" class="flex-1 py-2 rounded-lg bg-white text-red-700 shadow-sm transition">เข้าสู่ระบบ</button>
-                <button onclick="switchAuthTab('register')" id="tab-register-btn" class="flex-1 py-2 rounded-lg text-gray-600 transition">สมัครสมาชิก</button>
+                <button onclick="switchAuthTab('register')" id="tab-register-btn" class="flex-1 py-2 rounded-lg text-gray-600 transition">สมัครด้วย Google Mail</button>
                 <button onclick="switchAuthTab('forgot')" id="tab-forgot-btn" class="flex-1 py-2 rounded-lg text-gray-600 transition">ลืมรหัสผ่าน</button>
             </div>
 
@@ -46,34 +46,37 @@
                     <input type="password" id="login-pass" required placeholder="••••••••" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
                 </div>
                 <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-md transition duration-200 text-sm flex items-center justify-center gap-2">
-                    <span>🔐</span> เข้าสู่ระบบ (แยกสิทธิ์ตาม Role อัตโนมัติ)
+                    <span>🔐</span> เข้าสู่ระบบ (แยกตาม 3 Role หลัก)
                 </button>
             </form>
 
-            <!-- Form: Register -->
+            <!-- Form: Register (จำกัดเฉพาะ Whitelist และเลือกได้เฉพาะ 3 Role) -->
             <form id="form-register" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+                <div class="bg-amber-50 border border-amber-200 p-2.5 rounded-xl text-[11px] text-amber-800">
+                    ℹ️ ระบบจำกัดการสมัคร: เฉพาะอีเมลที่ได้รับอนุมัติ (Whitelist) เท่านั้น
+                </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">ชื่อ-นามสกุล</label>
-                    <input type="text" id="reg-name" required placeholder="สมชาย ใจดี" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+                    <input type="text" id="reg-name" required placeholder="ธัญวลัย โอบนิธิพันธ์" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Google Mail (Gmail)</label>
-                    <input type="email" id="reg-email" required placeholder="sales.pets@gmail.com" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Google Mail (Gmail สำหรับสมัคร)</label>
+                    <input type="email" id="reg-email" required placeholder="tanwalai@gmail.com" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">กำหนดสิทธิ์การใช้งาน (Role)</label>
-                    <select id="reg-role" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
-                        <option value="sales">พนักงานขาย (Sales / POS)</option>
-                        <option value="stock">พนักงานนับสต็อก (Stock Controller)</option>
-                        <option value="accountant">นักบัญชี / เถ้าแก่ (Accountant & Audit)</option>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">เลือกบทบาทสิทธิ์การใช้งาน (Role)</label>
+                    <select id="reg-role" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none font-semibold text-red-700">
+                        <option value="staff">พนักงาน (คนขาย / นับสต็อก)</option>
+                        <option value="accountant">นักบัญชี</option>
+                        <option value="owner">เถ้าแก่ (ผู้บริหารสูงสุด)</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">กำหนดรหัสผ่าน</label>
                     <input type="password" id="reg-pass" required placeholder="••••••••" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
                 </div>
-                <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-md transition duration-200 text-sm">
-                    ✨ สมัครสมาชิก
+                <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-md transition duration-200 text-sm flex items-center justify-center gap-2">
+                    <span>✨</span> สมัครสมาชิกด้วย Google Mail
                 </button>
             </form>
 
@@ -90,21 +93,21 @@
             </form>
 
             <div class="mt-6 text-center border-t border-gray-100 pt-4 text-xs text-gray-400">
-                Pet's Station Multi-Role POS & Audit Module v2.7
+                Pet's Station 3-Role Security v2.9
             </div>
         </div>
     </div>
 
 
-    <!-- ================= 2. ส่วนระบบหลักสำหรับพนักงานขาย (POS / Sales Dashboard) ================= -->
-    <div id="app-sales-content" class="hidden flex flex-col min-h-screen">
+    <!-- ================= 2. เลนหลักสำหรับ "พนักงาน" (Staff: คนขาย / นับสต็อก) ================= -->
+    <div id="app-staff-content" class="hidden flex flex-col min-h-screen">
         <header class="bg-red-700 text-white shadow-md">
             <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
                 <div class="flex items-center space-x-3">
                     <span class="bg-white text-red-700 font-bold p-2 rounded-lg shadow text-lg">🐾 Pet's Station</span>
                     <div>
-                        <h1 class="text-base font-bold">ระบบคิดเงินหน้าร้าน (POS - Point of Sale)</h1>
-                        <p class="text-xs text-red-200">ผู้ใช้งาน: <span id="sales-user-display" class="font-semibold underline">พนักงานขาย</span></p>
+                        <h1 class="text-base font-bold">ระบบปฏิบัติการหน้าร้าน & สต็อก (Staff Hub)</h1>
+                        <p class="text-xs text-red-200">ผู้ใช้งาน: <span id="staff-user-display" class="font-semibold underline">พนักงาน</span></p>
                     </div>
                 </div>
                 <button onclick="handleLogout()" class="bg-red-800 hover:bg-red-900 px-3 py-1.5 rounded-lg text-xs font-semibold">ออกจากระบบ</button>
@@ -112,126 +115,128 @@
         </header>
 
         <main class="max-w-7xl mx-auto px-4 py-6 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
-            <!-- ฝั่งซ้าย: เลือกสินค้าและรายการขาย -->
-            <div class="lg:col-span-7 bg-white p-6 rounded-2xl shadow-sm border border-red-100 flex flex-col justify-between">
-                <div>
-                    <h2 class="text-base font-bold text-red-700 mb-4 flex items-center gap-2">
-                        <span>🛒</span> เลือกสินค้าจำหน่ายหน้าร้าน
-                    </h2>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
-                        <button onclick="addToCart('อาหารเม็ดแมว Imperial Paw (1kg)', 150)" class="p-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl text-left transition">
-                            <div class="font-bold text-xs text-red-900">อาหารแมว Imperial Paw</div>
-                            <div class="text-xs text-red-600 font-semibold mt-1">150.00 ฿</div>
-                        </button>
-                        <button onclick="addToCart('ทรายแมว Sunpo (10L)', 180)" class="p-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl text-left transition">
-                            <div class="font-bold text-xs text-red-900">ทรายแมว Sunpo</div>
-                            <div class="text-xs text-red-600 font-semibold mt-1">180.00 ฿</div>
-                        </button>
-                        <button onclick="addToCart('ขนมเลียแมว (แพ็ค 4 ซอง)', 59)" class="p-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl text-left transition">
-                            <div class="font-bold text-xs text-red-900">ขนมเลียแมว</div>
-                            <div class="text-xs text-red-600 font-semibold mt-1">59.00 ฿</div>
-                        </button>
-                        <button onclick="addToCart('อาหารหมา Royal Canin (3kg)', 550)" class="p-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl text-left transition">
-                            <div class="font-bold text-xs text-red-900">Royal Canin (3kg)</div>
-                            <div class="text-xs text-red-600 font-semibold mt-1">550.00 ฿</div>
-                        </button>
-                        <button onclick="addToCart('สเปรย์ Nano กำจัดกลิ่น', 220)" class="p-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl text-left transition">
-                            <div class="font-bold text-xs text-red-900">สเปรย์ Nano กำจัดกลิ่น</div>
-                            <div class="text-xs text-red-600 font-semibold mt-1">220.00 ฿</div>
-                        </button>
-                        <button onclick="addToCart('ยาหยอดหมัด Ceramectin', 190)" class="p-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl text-left transition">
-                            <div class="font-bold text-xs text-red-900">ยาหยอดหมัด Ceramectin</div>
-                            <div class="text-xs text-red-600 font-semibold mt-1">190.00 ฿</div>
-                        </button>
-                    </div>
-
-                    <div class="space-y-3">
-                        <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">ชื่อลูกค้า (สมาชิก / ทั่วไป)</label>
-                            <input type="text" id="posCustomerName" value="คุณลูกค้าหน้าร้าน" class="w-full border border-gray-300 rounded-lg p-2 text-xs">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">ช่องทางชำระเงิน</label>
-                            <select id="posPaymentMethod" class="w-full border border-gray-300 rounded-lg p-2 text-xs">
-                                <option value="cash">เงินสด (Cash)</option>
-                                <option value="qr">สแกน QR Code พร้อมเพย์ (PromptPay)</option>
-                                <option value="transfer">โอนผ่านบัญชีธนาคาร</option>
-                            </select>
-                        </div>
-                    </div>
+            <div class="lg:col-span-7 bg-white p-6 rounded-2xl shadow-sm border border-red-100">
+                <h2 class="text-base font-bold text-red-700 mb-4">🛒 ระบบขายหน้าร้าน (POS) & นับสต็อก</h2>
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <button onclick="addToCart('อาหารแมว Imperial Paw (1kg)', 150)" class="p-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl text-left">
+                        <div class="font-bold text-xs text-red-900">อาหารแมว Imperial Paw</div>
+                        <div class="text-xs text-red-600 font-semibold mt-1">150.00 ฿</div>
+                    </button>
+                    <button onclick="addToCart('ทรายแมว Sunpo (10L)', 180)" class="p-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl text-left">
+                        <div class="font-bold text-xs text-red-900">ทรายแมว Sunpo</div>
+                        <div class="text-xs text-red-600 font-semibold mt-1">180.00 ฿</div>
+                    </button>
+                </div>
+                <div class="p-3 bg-gray-50 rounded-xl border text-xs text-gray-700">
+                    📦 <b>โหมดพนักงาน:</b> สามารถบันทึกการขาย ตัดสต็อกสินค้า และเช็คยอดคงเหลือประจำวันได้
                 </div>
             </div>
 
-            <!-- ฝั่งขวา: ตะกร้าสินค้าและสรุปยอดชำระ -->
             <div class="lg:col-span-5 bg-white p-6 rounded-2xl shadow-sm border border-red-100 flex flex-col justify-between">
                 <div>
-                    <h2 class="text-base font-bold text-red-700 mb-3 flex items-center justify-between">
-                        <span>🧾 ตะกร้าสินค้าปัจจุบัน</span>
-                        <button onclick="clearCart()" class="text-xs text-gray-400 hover:text-red-600">ล้างตะกร้า</button>
-                    </h2>
-                    
-                    <div class="overflow-y-auto max-h-[220px] mb-4 border border-gray-100 rounded-xl p-2">
-                        <table class="w-full text-left text-xs">
-                            <thead>
-                                <tr class="text-gray-500 border-b">
-                                    <th class="pb-2">รายการ</th>
-                                    <th class="pb-2 text-center">จำนวน</th>
-                                    <th class="pb-2 text-right">ราคา</th>
-                                </tr>
-                            </thead>
-                            <tbody id="cartTableBody" class="divide-y divide-gray-50">
-                                <tr>
-                                    <td colspan="3" class="text-center py-4 text-gray-400">ยังไม่มีสินค้าในตะกร้า</td>
-                                </tr>
-                            </tbody>
+                    <h2 class="text-base font-bold text-red-700 mb-3">🧾 ตะกร้าสินค้า</h2>
+                    <div class="overflow-y-auto max-h-[200px] mb-4 border border-gray-100 rounded-xl p-2 text-xs">
+                        <table class="w-full text-left">
+                            <thead><tr class="text-gray-500 border-b"><th class="pb-2">รายการ</th><th class="pb-2 text-center">จำนวน</th><th class="pb-2 text-right">ราคา</th></tr></thead>
+                            <tbody id="cartTableBody"><tr><td colspan="3" class="text-center py-4 text-gray-400">ยังไม่มีสินค้าในตะกร้า</td></tr></tbody>
                         </table>
                     </div>
                 </div>
-
-                <div class="border-t pt-4 space-y-3">
-                    <div class="flex justify-between items-center text-sm font-bold">
-                        <span>ยอดรวมสุทธิ:</span>
-                        <span id="cartTotalPrice" class="text-red-600 text-lg">0.00 ฿</span>
+                <div class="border-t pt-4">
+                    <div class="flex justify-between items-center text-sm font-bold mb-3">
+                        <span>ยอดรวม:</span> <span id="cartTotalPrice" class="text-red-600 text-lg">0.00 ฿</span>
                     </div>
-                    <button onclick="processCheckout()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow transition text-sm flex items-center justify-center gap-2">
-                        <span>🖨️</span> ยืนยันการชำระเงิน & พิมพ์ใบเสร็จ
-                    </button>
+                    <button onclick="processCheckout()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-xs">ยืนยันการขาย & ตัดสต็อก</button>
                 </div>
             </div>
         </main>
     </div>
 
 
-    <!-- ================= 3. ส่วนระบบหลักเดิมสำหรับนักบัญชี/เถ้าแก่ (Audit & Accounting Hub) ================= -->
-    <div id="app-main-content" class="hidden flex flex-col min-h-screen">
+    <!-- ================= 3. เลนหลักสำหรับ "นักบัญชี" (Accountant) ================= -->
+    <div id="app-accountant-content" class="hidden flex flex-col min-h-screen">
         <header class="bg-red-700 text-white shadow-md">
-            <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
                 <div class="flex items-center space-x-3">
                     <span class="bg-white text-red-700 font-bold p-2 rounded-lg shadow text-lg">🐾 Pet's Station</span>
                     <div>
-                        <h1 class="text-base font-bold">ระบบบัญชีและตรวจสอบ (Audit & Accounting Hub)</h1>
-                        <p class="text-xs text-red-200">ผู้ใช้งาน: <span id="current-user-display" class="font-semibold underline">ธัญวลัย (Audit)</span></p>
+                        <h1 class="text-base font-bold">ระบบบัญชีและการเงิน (Accountant Hub)</h1>
+                        <p class="text-xs text-red-200">ผู้ใช้งาน: <span id="accountant-user-display" class="font-semibold underline">นักบัญชี</span></p>
                     </div>
                 </div>
                 <button onclick="handleLogout()" class="bg-red-800 hover:bg-red-900 px-3 py-1.5 rounded-lg text-xs font-semibold">ออกจากระบบ</button>
             </div>
         </header>
 
-        <!-- (โครงสร้างเนื้อหาบัญชีเดิมถูกเก็บไว้คงเดิมเพื่อให้สอดคล้องกับโค้ดต้นฉบับของคุณ) -->
-        <main class="max-w-7xl mx-auto px-4 py-6 flex-grow flex items-center justify-center">
-            <div class="bg-white p-8 rounded-2xl shadow-sm border border-red-100 text-center">
-                <h3 class="text-lg font-bold text-red-700 mb-2">ยินดีต้อนรับสู่ระบบผู้บริหารและบัญชี</h3>
-                <p class="text-xs text-gray-500">คุณเข้าสู่ระบบด้วยสิทธิ์ผู้ตรวจสอบ / บัญชีเรียบร้อยแล้ว</p>
+        <main class="max-w-7xl mx-auto px-4 py-6 flex-grow grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-red-100">
+                <h2 class="text-base font-bold text-red-700 mb-3">📊 บันทึกรายการบัญชี & ตรวจสอบบิลรับสินค้า</h2>
+                <p class="text-xs text-gray-600 mb-4">เลนสำหรับตรวจสอบเอกสารการซื้อ การจ่ายเงิน ค่าใช้จ่ายร้าน และจัดทำงบการเงิน</p>
+                <div class="p-4 bg-red-50 rounded-xl border border-red-200 text-xs text-red-800 font-medium">
+                    ✔️ สถานะระบบบัญชี: พร้อมลงสมุดรายวันทั่วไป (General Journal) และออกใบกำกับภาษี
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-red-100">
+                <h2 class="text-base font-bold text-red-700 mb-3">📈 งบกำไรขาดทุนเบื้องต้น</h2>
+                <div class="space-y-2 text-xs">
+                    <div class="flex justify-between py-1 border-b"><span>รายได้จากการขาย (Sales):</span><span class="font-bold text-emerald-700">+125,000.00 ฿</span></div>
+                    <div class="flex justify-between py-1 border-b"><span>หัก ต้นทุนขาย (COGS):</span><span class="font-bold text-red-600">-75,000.00 ฿</span></div>
+                    <div class="flex justify-between py-1 font-bold text-sm"><span>กำไรสุทธิ (Net Profit):</span><span class="text-red-700">50,000.00 ฿</span></div>
+                </div>
             </div>
         </main>
     </div>
 
-    <!-- ================= 4. JavaScript ควบคุม Flow และ Role ================= -->
+
+    <!-- ================= 4. เลนหลักสำหรับ "เถ้าแก่" (Owner / Admin สิทธิ์สูงสุด) ================= -->
+    <div id="app-owner-content" class="hidden flex flex-col min-h-screen">
+        <header class="bg-red-900 text-white shadow-md">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <span class="bg-white text-red-900 font-bold p-2 rounded-lg shadow text-lg">🐾 Pet's Station</span>
+                    <div>
+                        <h1 class="text-base font-bold">ระบบบริหารภาพรวมธุรกิจ (Owner Executive Dashboard)</h1>
+                        <p class="text-xs text-red-200">ผู้ใช้งาน: <span id="owner-user-display" class="font-semibold underline">เถ้าแก่</span> (สิทธิ์สูงสุด)</p>
+                    </div>
+                </div>
+                <button onclick="handleLogout()" class="bg-red-950 hover:bg-black px-3 py-1.5 rounded-lg text-xs font-semibold">ออกจากระบบ</button>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 py-6 flex-grow grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-red-200">
+                <h3 class="text-xs font-bold text-gray-500 uppercase">ยอดขายรวมสุทธิวันนี้</h3>
+                <div class="text-2xl font-bold text-red-700 mt-2">12,500.00 ฿</div>
+                <p class="text-[11px] text-gray-400 mt-1">อัปเดตแบบเรียลไทม์จากหน้าร้าน สุราษฎร์ธานี</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-red-200">
+                <h3 class="text-xs font-bold text-gray-500 uppercase">อนุมัติคำสั่งซื้อ / จ่ายเงิน</h3>
+                <div class="text-2xl font-bold text-emerald-700 mt-2">3 รายการ</div>
+                <p class="text-[11px] text-gray-400 mt-1">รอการตรวจสอบและอนุมัติจากเถ้าแก่</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-red-200">
+                <h3 class="text-xs font-bold text-gray-500 uppercase">สถานะแฟรนไชส์ / โกดัง</h3>
+                <div class="text-xl font-bold text-gray-800 mt-2">🟢 ปกติ (สาขาหลัก)</div>
+                <p class="text-[11px] text-gray-400 mt-1">เชื่อมโยงระบบคลังสินค้าสมบูรณ์</p>
+            </div>
+        </main>
+    </div>
+
+
+    <!-- ================= 5. JavaScript ควบคุม Whitelist และ 3 Roles ================= -->
     <script>
+        // กำหนด Whitelist อีเมลที่ได้รับอนุญาต
+        const allowedWhitelistEmails = [
+            "tanwalai@gmail.com",
+            "bankpetstation@gmail.com",
+            "Tanwalai2544@gmail.com"
+        ];
+
         let currentUser = null;
         let registeredUsers = [
-            { email: "sales@gmail.com", pass: "123456", name: "น้องฝ้าย (พนักงานขาย)", role: "sales" },
-            { email: "tanwalai@gmail.com", pass: "123456", name: "ธัญวลัย (เจ้าของร้าน/นักบัญชี)", role: "accountant" }
+            { email: "tanwalai@gmail.com", pass: "123456", name: "ธัญวลัย (เถ้าแก่)", role: "owner" },
+            { email: "bankpetstation@gmail.com", pass: "123456", name: "คุณแบงค์ (นักบัญชี)", role: "accountant" },
+            { email: "Tanwalai2544@gmail.com", pass: "123456", name: "ทีมงาน (พนักงาน)", role: "staff" }
         ];
 
         let cartItems = [];
@@ -251,51 +256,67 @@
             }
         }
 
+        // จัดการ Login และแยกเลนตาม 3 Role
         function handleLogin(e) {
             e.preventDefault();
-            const email = document.getElementById('login-email').value.trim();
+            const email = document.getElementById('login-email').value.trim().toLowerCase();
             const pass = document.getElementById('login-pass').value.trim();
 
-            const found = registeredUsers.find(u => u.email === email && u.pass === pass);
+            const found = registeredUsers.find(u => u.email.toLowerCase() === email && u.pass === pass);
             if(found) {
                 currentUser = found;
                 document.getElementById('auth-wrapper').classList.add('hidden');
 
-                // แยกเส้นทาง (Routing) ตาม Role ของผู้ใช้งาน
-                if(found.role === 'sales') {
-                    document.getElementById('sales-user-display').innerText = `${found.name} (${found.email})`;
-                    document.getElementById('app-sales-content').classList.remove('hidden');
-                } else {
-                    document.getElementById('current-user-display').innerText = `${found.name} (${found.email})`;
-                    document.getElementById('app-main-content').classList.remove('hidden');
+                // เปิดหน้าจอตาม Role ที่กำหนด
+                if(found.role === 'staff') {
+                    document.getElementById('staff-user-display').innerText = `${found.name} (${found.email})`;
+                    document.getElementById('app-staff-content').classList.remove('hidden');
+                } else if(found.role === 'accountant') {
+                    document.getElementById('accountant-user-display').innerText = `${found.name} (${found.email})`;
+                    document.getElementById('app-accountant-content').classList.remove('hidden');
+                } else if(found.role === 'owner') {
+                    document.getElementById('owner-user-display').innerText = `${found.name} (${found.email})`;
+                    document.getElementById('app-owner-content').classList.remove('hidden');
                 }
             } else {
-                document.getElementById('error-message-text').innerText = "Google Mail หรือรหัสผ่านไม่ถูกต้อง!";
+                document.getElementById('error-message-text').innerText = "Google Mail หรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง";
                 document.getElementById('login-error-alert').classList.remove('hidden');
             }
         }
 
+        // สมัครสมาชิกพร้อมตรวจสอบ Whitelist (บังคับว่าต้องมีสิทธิ์ก่อน)
         function handleRegister(e) {
             e.preventDefault();
             const name = document.getElementById('reg-name').value.trim();
-            const email = document.getElementById('reg-email').value.trim();
+            const email = document.getElementById('reg-email').value.trim().toLowerCase();
             const role = document.getElementById('reg-role').value;
             const pass = document.getElementById('reg-pass').value.trim();
 
-            if(registeredUsers.some(u => u.email === email)) {
-                alert('อีเมลนี้ถูกใช้งานในระบบแล้ว');
+            // ตรวจสอบ Whitelist
+            const isAuthorized = allowedWhitelistEmails.some(allowed => allowed.toLowerCase() === email);
+
+            if(!isAuthorized) {
+                document.getElementById('error-message-text').innerText = "⚠️ ต้องมีสิทธิ์ก่อนเลย! อีเมลนี้ไม่ได้รับอนุญาตให้ลงทะเบียนระบบร้านสถานีสัตว์เลี้ยง";
+                document.getElementById('login-error-alert').classList.remove('hidden');
+                switchAuthTab('login');
+                return;
+            }
+
+            if(registeredUsers.some(u => u.email.toLowerCase() === email)) {
+                alert('อีเมลนี้มีบัญชีในระบบอยู่แล้ว กรุณาเข้าสู่ระบบ');
+                switchAuthTab('login');
                 return;
             }
 
             registeredUsers.push({ email, pass, name, role });
-            alert('สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบ');
+            alert('ลงทะเบียนด้วย Google Mail สำเร็จ! กรุณาเข้าสู่ระบบ');
             document.getElementById('login-email').value = email;
             switchAuthTab('login');
         }
 
         function handleForgot(e) {
             e.preventDefault();
-            alert('ระบบได้ส่งลิงก์กู้คืนรหัสผ่านไปยังอีเมลของคุณแล้ว');
+            alert('ระบบได้ส่งลิงก์กู้คืนรหัสผ่านไปยัง Google Mail ของคุณแล้ว');
             switchAuthTab('login');
         }
 
@@ -303,25 +324,17 @@
             currentUser = null;
             cartItems = [];
             renderCart();
-            document.getElementById('app-sales-content').classList.add('hidden');
-            document.getElementById('app-main-content').classList.add('hidden');
+            document.getElementById('app-staff-content').classList.add('hidden');
+            document.getElementById('app-accountant-content').classList.add('hidden');
+            document.getElementById('app-owner-content').classList.add('hidden');
             document.getElementById('auth-wrapper').classList.remove('hidden');
             document.getElementById('login-pass').value = '';
         }
 
-        // ฟังก์ชัน POS สำหรับพนักงานขาย
+        // ฟังก์ชัน POS สำหรับพนักงาน
         function addToCart(name, price) {
             const existing = cartItems.find(i => i.name === name);
-            if(existing) {
-                existing.qty += 1;
-            } else {
-                cartItems.push({ name, price, qty: 1 });
-            }
-            renderCart();
-        }
-
-        function clearCart() {
-            cartItems = [];
+            if(existing) { existing.qty += 1; } else { cartItems.push({ name, price, qty: 1 }); }
             renderCart();
         }
 
@@ -329,36 +342,24 @@
             const tbody = document.getElementById('cartTableBody');
             tbody.innerHTML = '';
             let total = 0;
-
             if(cartItems.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-gray-400">ยังไม่มีสินค้าในตะกร้า</td></tr>`;
                 document.getElementById('cartTotalPrice').innerText = "0.00 ฿";
                 return;
             }
-
             cartItems.forEach(item => {
                 let sum = item.price * item.qty;
                 total += sum;
                 const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td class="py-2">${item.name}</td>
-                    <td class="py-2 text-center">${item.qty}</td>
-                    <td class="py-2 text-right">${sum.toLocaleString('en-US', { minimumFractionDigits: 2 })} ฿</td>
-                `;
+                row.innerHTML = `<td class="py-2">${item.name}</td><td class="py-2 text-center">${item.qty}</td><td class="py-2 text-right">${sum.toLocaleString('en-US', { minimumFractionDigits: 2 })} ฿</td>`;
                 tbody.appendChild(row);
             });
-
             document.getElementById('cartTotalPrice').innerText = total.toLocaleString('en-US', { minimumFractionDigits: 2 }) + " ฿";
         }
 
         function processCheckout() {
-            if(cartItems.length === 0) {
-                alert('กรุณาเลือกสินค้าใส่ตะกร้าก่อนทำรายการ');
-                return;
-            }
-            const customer = document.getElementById('posCustomerName').value;
-            const method = document.getElementById('posPaymentMethod').value;
-            alert(`ชำระเงินสำเร็จสำหรับ ${customer} เรียบร้อย! (ช่องทาง: ${method}) ระบบได้บันทึกยอดขายและตัดสต็อกอัตโนมัติ`);
+            if(cartItems.length === 0) { alert('กรุณาเลือกสินค้าก่อน'); return; }
+            alert('บันทึกการขายและตัดสต็อกเรียบร้อย!');
             cartItems = [];
             renderCart();
         }

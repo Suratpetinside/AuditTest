@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบบัญชีและตรวจสอบ (Audit & Accounting Hub) - สถานีสัตว์เลี้ยง (Pet's Station)</title>
+    <title>ระบบบัญชีและตรวจสอบ (Audit & Accounting Hub) - สถานีสัตว์เลี้ยง</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -12,14 +12,14 @@
 </head>
 <body class="bg-gradient-to-br from-red-900 via-red-800 to-black text-gray-800 min-h-screen flex flex-col">
 
-    <!-- ================= 1. ส่วนหน้าล็อกอินเดิม (คงไว้ตามที่คุณต้องการเป๊ะๆ พร้อมตาเปิด/ปิดรหัสผ่าน) ================= -->
+    <!-- ================= 1. ส่วนหน้า Login เดิมของคุณ (คงไว้เป๊ะๆ) ================= -->
     <div id="auth-wrapper" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-md">
         <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-red-100 p-8 transform transition-all">
             
             <!-- Logo & Store Header -->
             <div class="text-center mb-6">
                 <div class="inline-block bg-gradient-to-r from-red-600 to-red-700 text-white font-bold p-3.5 rounded-2xl shadow-lg text-2xl mb-2">Pet's Station</div>
-                <h2 class="text-xl font-extrabold text-gray-900">ระบบบัญชีและตรวจสอบ (Audit & Accounting Hub)</h2>
+                <h2 class="text-xl font-extrabold text-gray-900">ระบบบัญชีและตรวจสอบ (Audit & Accounting)</h2>
                 <p class="text-xs text-red-600 font-medium mt-1">สุราษฎร์ธานี (Surat Thani)</p>
             </div>
 
@@ -39,10 +39,10 @@
             <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">Google Mail (Gmail)</label>
-                    <input type="email" id="login-email" required placeholder="tanwalai@gmail.com" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none" value="tanwalai@gmail.com">
+                    <input type="email" id="login-email" required placeholder="name@gmail.com" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none" value="tanwalai@gmail.com">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">รหัสผ่านบัญชี</label>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">รหัสผ่าน</label>
                     <div class="relative">
                         <input type="password" id="login-pass" required placeholder="••••••••" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none pr-10" value="123456">
                         <button type="button" onclick="togglePassword('login-pass', 'eye-login')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none">
@@ -51,38 +51,39 @@
                     </div>
                 </div>
                 <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition duration-200 text-sm flex items-center justify-center gap-2">
-                    <span>🔐</span> เข้าสู่ระบบ
+                    <span>🔐</span> เข้าสู่ระบบจัดการบัญชี
                 </button>
             </form>
 
             <!-- Form: Register -->
-            <form id="form-register" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+            <form id="form-register" onsubmit="handleRegister(event)" class="space-y-3 hidden">
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">ชื่อ - สกุล / บทบาท</label>
-                    <input type="text" id="reg-name" required placeholder="ธัญวลัย (ผู้ตรวจสอบบัญชี)" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+                    <label class="block text-xs font-medium text-gray-700 mb-1">ชื่อ-นามสกุล / ชื่อร้าน</label>
+                    <input type="text" id="reg-name" required placeholder="ธัญวลัย (ผู้จัดการฝ่ายบัญชี)" class="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">Google Mail (Gmail)</label>
-                    <input type="email" id="reg-email" required placeholder="name@gmail.com" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+                    <input type="email" id="reg-email" required placeholder="name@gmail.com" class="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">ตั้งรหัสผ่านใหม่</label>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">กำหนดรหัสผ่านใหม่</label>
                     <div class="relative">
-                        <input type="password" id="reg-pass" required placeholder="••••••••" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none pr-10">
+                        <input type="password" id="reg-pass" required placeholder="••••••••" class="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none pr-10">
                         <button type="button" onclick="togglePassword('reg-pass', 'eye-reg')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none">
                             <span id="eye-reg">👁️</span>
                         </button>
                     </div>
                 </div>
-                <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition duration-200 text-sm">
-                    📝 ลงทะเบียนเข้าสู่ระบบร้าน
+                <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-lg transition duration-200 text-sm">
+                    ✨ ลงทะเบียนบัญชีใหม่
                 </button>
             </form>
 
             <!-- Form: Forgot Password -->
             <form id="form-forgot" onsubmit="handleForgot(event)" class="space-y-4 hidden">
+                <p class="text-xs text-gray-600 bg-red-50 p-3 rounded-xl border border-red-100">💡 กรอกอีเมลที่ท่านลงทะเบียนไว้ ระบบจะทำการตรวจสอบและส่งข้อมูลกู้คืนบัญชีไปให้</p>
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Google Mail ที่ใช้ลงทะเบียน</label>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Google Mail (Gmail)</label>
                     <input type="email" id="forgot-email" required placeholder="name@gmail.com" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
                 </div>
                 <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition duration-200 text-sm">
@@ -91,14 +92,14 @@
             </form>
 
             <div class="mt-6 text-center border-t border-gray-100 pt-4 text-xs text-gray-400">
-                Pet's Station Security Hub v4.5
+                Pet's Station Security v4.2 (Audit Edition)
             </div>
         </div>
     </div>
 
 
-    <!-- ================= 2. ส่วนหน้าหลัก Role บัญชีและการตรวจสอบ (Audit & Accounting Hub) ================= -->
-    <div id="app-main-content" class="hidden flex flex-col min-h-screen bg-gray-50 text-gray-800">
+    <!-- ================= 2. ส่วนหน้า Main Hub (หลัง Login สำเร็จ: โค้ดหน้าบัญชีตามที่คุณขอ) ================= -->
+    <div id="app-main-content" class="hidden flex flex-col min-h-screen bg-gray-50">
         <!-- Header -->
         <header class="bg-red-700 text-white shadow-md">
             <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
@@ -408,7 +409,7 @@
         </main>
     </div>
 
-    <!-- ================= 3. JavaScript ควบคุม Flow ทั้งหมด ================= -->
+    <!-- ================= 3. JavaScript ควบคุมการทำงานทั้งหมด ================= -->
     <script>
         // ระบบจำลองข้อมูลผู้ใช้งานและสมุดรายวัน
         let currentUser = null;
@@ -418,7 +419,7 @@
         ];
 
         let journalEntries = [
-            { date: "2026-11-07", id: "TX-2026-901", supplier: "บริษัท จรัญกิจ (Imperial Paw)", account: "สินค้าคงเหลือ (Inventory - Ministock)", creditAcc: "ธนาคารร้าน (Bank Transfer)", amount: 15000, type: "procurement" },
+            { date: "2026-11-07", id: "TX-2026-901", supplier: "บริษัท จรัญกิจ (Imperial Paw)", account: "สินค้าคงเหลือ (Inventory - Ministock)", creditAcc: "ธนาคารร้าน", amount: 15000, type: "procurement" },
             { date: "2026-11-07", id: "EXP-2026-089", supplier: "ค่าไฟฟ้าประจำเดือน", account: "ค่าไฟฟ้า (Expense)", creditAcc: "เงินสด / ธนาคารร้าน", amount: 3500, type: "expense" }
         ];
 
@@ -430,7 +431,7 @@
             "TX-2026-903": { supplier: "Royal Canin Thailand", invoice: "INV-RC-5541", items: "อาหารสุนัขพันธุ์เล็ก (30 แพ็ค)", amount: 42000 }
         };
 
-        // ฟังก์ชันเปิด-ปิดดูรหัสผ่าน ปรับอีโมจิเป็น ตาเปิด (👁️) และ ตาปิด (🔒)
+        // ฟังก์ชันสลับการแสดงรหัสผ่าน (ตาเปิด 👁️ / ปิด)
         function togglePassword(inputId, eyeId) {
             const inputField = document.getElementById(inputId);
             const eyeIcon = document.getElementById(eyeId);
@@ -448,9 +449,9 @@
             document.getElementById('form-login').classList.add('hidden');
             document.getElementById('form-register').classList.add('hidden');
             document.getElementById('form-forgot').classList.add('hidden');
-            document.getElementById('tab-login-btn').className = "flex-1 py-2 rounded-lg text-gray-600 transition";
-            document.getElementById('tab-register-btn').className = "flex-1 py-2 rounded-lg text-gray-600 transition";
-            document.getElementById('tab-forgot-btn').className = "flex-1 py-2 rounded-lg text-gray-600 transition";
+            document.getElementById('tab-login-btn').className = "flex-1 py-2.5 rounded-xl text-gray-600 transition";
+            document.getElementById('tab-register-btn').className = "flex-1 py-2.5 rounded-xl text-gray-600 transition";
+            document.getElementById('tab-forgot-btn').className = "flex-1 py-2.5 rounded-xl text-gray-600 transition";
             document.getElementById('login-error-alert').classList.add('hidden');
 
             if(tab === 'login') {
@@ -465,7 +466,7 @@
             }
         }
 
-        // จัดการ Login (แจ้งเตือนรหัสผิด / ล็อกอินสำเร็จ)
+        // จัดการ Login
         function handleLogin(e) {
             e.preventDefault();
             const email = document.getElementById('login-email').value.trim();

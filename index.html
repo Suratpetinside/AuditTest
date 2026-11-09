@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบบัญชีและตรวจสอบ (Audit & Accounting Hub) - สถานีสัตว์เลี้ยง (Pet's Station)</title>
+    <title>ระบบบริหารจัดการ & บัญชีอัตโนมัติ - สถานีสัตว์เลี้ยง (Pet's Station)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -12,7 +12,7 @@
 </head>
 <body class="bg-gradient-to-br from-red-900 via-red-800 to-black text-gray-800 min-h-screen flex flex-col">
 
-    <!-- ================= 1. ส่วนหน้าล็อกอินเดิม (คงไว้เป๊ะๆ ตามที่คุณต้องการ) ================= -->
+    <!-- ================= 1. ส่วนหน้าล็อกอิน & ระบบ OTP ลืมรหัสผ่าน ================= -->
     <div id="auth-wrapper" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-md">
         <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-red-100 p-8 transform transition-all">
             
@@ -28,7 +28,7 @@
                 <span>⚠️</span> <span id="error-message-text">อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง</span>
             </div>
 
-            <!-- Tab Switcher -->
+            <!-- Tab Switcher (มีเฉพาะ เข้าสู่ระบบ และ ลืมรหัสผ่าน ตามสั่ง) -->
             <div class="flex bg-gray-100 p-1.5 rounded-2xl mb-6 text-xs font-semibold">
                 <button onclick="switchAuthTab('login')" id="tab-login-btn" class="flex-1 py-2.5 rounded-xl bg-white text-red-700 shadow-sm transition">เข้าสู่ระบบ</button>
                 <button onclick="switchAuthTab('forgot')" id="tab-forgot-btn" class="flex-1 py-2.5 rounded-xl text-gray-600 transition">ลืมรหัสผ่าน</button>
@@ -38,12 +38,12 @@
             <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">Google Mail (Gmail)</label>
-                    <input type="email" id="login-email" required placeholder="name@gmail.com" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none" value="tanwalai@gmail.com">
+                    <input type="email" id="login-email" required placeholder="name@gmail.com" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none" value="tanwalai2544@gmail.com">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">รหัสผ่านบัญชีร้าน</label>
                     <div class="relative">
-                        <input type="password" id="login-pass" required placeholder="••••••••" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none pr-10" value="123456">
+                        <input type="password" id="login-pass" required placeholder="••••••••" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none pr-10" value="1234">
                         <button type="button" onclick="togglePassword('login-pass', 'eye-login')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none">
                             <span id="eye-login">👁️</span>
                         </button>
@@ -98,20 +98,63 @@
     </div>
 
 
-    <!-- ================= 2. ส่วนหน้า Main Hub (หน้าบัญชีและตรวจสอบที่คุณขอ) ================= -->
-    <div id="app-main-content" class="hidden flex flex-col min-h-screen bg-gray-50">
-        <!-- Header -->
+    <!-- ================= 2. เลนหลักสำหรับ "พนักงาน" (Staff Hub) ================= -->
+    <div id="app-staff-content" class="hidden flex flex-col min-h-screen bg-gray-50">
+        <header class="bg-red-700 text-white shadow-md">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <span class="bg-white text-red-700 font-bold p-2 rounded-lg shadow text-lg">🐾 Pet's Station</span>
+                    <div>
+                        <h1 class="text-base font-bold">ระบบปฏิบัติการหน้าร้าน & สต็อก (Staff Hub)</h1>
+                        <p class="text-xs text-red-200">ผู้ใช้งาน: <span id="staff-user-display" class="font-semibold underline">พนักงาน</span></p>
+                    </div>
+                </div>
+                <button onclick="handleLogout()" class="bg-red-800 hover:bg-red-900 px-3 py-1.5 rounded-lg text-xs font-semibold">ออกจากระบบ</button>
+            </div>
+        </header>
+        <main class="max-w-7xl mx-auto px-4 py-6 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
+            <div class="lg:col-span-7 bg-white p-6 rounded-2xl shadow-sm border border-red-100">
+                <h2 class="text-base font-bold text-red-700 mb-4">🛒 ระบบขายหน้าร้าน (POS) & นับสต็อก</h2>
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <button onclick="addToCart('อาหารแมว Imperial Paw (1kg)', 150)" class="p-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl text-left">
+                        <div class="font-bold text-xs text-red-900">อาหารแมว Imperial Paw</div>
+                        <div class="text-xs text-red-600 font-semibold mt-1">150.00 ฿</div>
+                    </button>
+                </div>
+            </div>
+            <div class="lg:col-span-5 bg-white p-6 rounded-2xl shadow-sm border border-red-100 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-base font-bold text-red-700 mb-3">🧾 ตะกร้าสินค้า</h2>
+                    <div class="overflow-y-auto max-h-[200px] mb-4 border border-gray-100 rounded-xl p-2 text-xs">
+                        <table class="w-full text-left">
+                            <thead><tr class="text-gray-500 border-b"><th class="pb-2">รายการ</th><th class="pb-2 text-center">จำนวน</th><th class="pb-2 text-right">ราคา</th></tr></thead>
+                            <tbody id="cartTableBody"><tr><td colspan="3" class="text-center py-4 text-gray-400">ยังไม่มีสินค้าในตะกร้า</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="border-t pt-4">
+                    <div class="flex justify-between items-center text-sm font-bold mb-3">
+                        <span>ยอดรวม:</span> <span id="cartTotalPrice" class="text-red-600 text-lg">0.00 ฿</span>
+                    </div>
+                    <button onclick="processCheckout()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-xs">ยืนยันการขาย & ตัดสต็อก</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+
+    <!-- ================= 3. เลนหลักสำหรับ "นักบัญชี" (Audit & Accounting Hub ตามที่คุณขอ) ================= -->
+    <div id="app-accountant-content" class="hidden flex flex-col min-h-screen bg-gray-50">
         <header class="bg-red-700 text-white shadow-md">
             <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex items-center space-x-3">
                     <span class="bg-white text-red-700 font-bold p-2 rounded-lg shadow text-lg">🐾 Pet's Station</span>
                     <div>
                         <h1 class="text-base font-bold">ระบบบัญชีและตรวจสอบ (Audit & Accounting Hub)</h1>
-                        <p class="text-xs text-red-200">ผู้ใช้งาน: <span id="current-user-display" class="font-semibold underline">ธัญวลัย (Audit)</span></p>
+                        <p class="text-xs text-red-200">ผู้ใช้งาน: <span id="current-user-display" class="font-semibold underline">นักบัญชี</span></p>
                     </div>
                 </div>
                 
-                <!-- Navigation Switcher for Accountant / Auditor Roles -->
                 <div class="flex bg-red-800 p-1 rounded-xl shadow-inner flex-wrap gap-1">
                     <button onclick="switchMainTab('procurement')" id="btn-procurement" class="px-3 py-2 text-xs font-bold rounded-lg transition bg-white text-red-700 shadow">
                         📦 ตรวจสอบรับสินค้า (Audit)
@@ -129,13 +172,9 @@
             </div>
         </header>
 
-        <!-- Main Container -->
         <main class="max-w-7xl mx-auto px-4 py-6 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
-            
-            <!-- ฝั่งซ้าย: ฟอร์มปฏิบัติงานตามเมนูนักบัญชี -->
             <div class="lg:col-span-5 bg-white p-6 rounded-2xl shadow-sm border border-red-100 flex flex-col justify-between">
                 
-                <!-- 1. เมนู Audit รับสินค้าเข้าสต็อก & ระบบจ่ายเงิน (Pay-001) -->
                 <div id="form-procurement-container">
                     <div class="flex items-center justify-between border-b border-red-100 pb-3 mb-4">
                         <h2 class="text-base font-bold text-red-700 flex items-center gap-2">
@@ -200,7 +239,6 @@
                     </div>
                 </div>
 
-                <!-- 2. เมนูบันทึกค่าใช้จ่ายร้าน -->
                 <div id="form-expense-container" class="hidden">
                     <div class="flex items-center justify-between border-b border-red-100 pb-3 mb-4">
                         <h2 class="text-base font-bold text-red-700 flex items-center gap-2">
@@ -246,7 +284,6 @@
                     </div>
                 </div>
 
-                <!-- 3. เมนูออกเอกสารภาษี ใบเสร็จ ใบกำกับภาษี และ CN -->
                 <div id="form-tax-container" class="hidden">
                     <div class="flex items-center justify-between border-b border-red-100 pb-3 mb-4">
                         <h2 class="text-base font-bold text-red-700 flex items-center gap-2">
@@ -283,17 +320,14 @@
                     </div>
                 </div>
 
-                <!-- User Quick Info footer -->
                 <div class="mt-6 pt-3 border-t border-gray-100 flex justify-between items-center text-xs text-gray-500">
                     <span>สถานะระบบ: เชื่อมโยงบัญชีออนไลน์ปกติ</span>
                     <button onclick="handleLogout()" class="text-red-600 font-semibold hover:underline">ออกจากระบบ</button>
                 </div>
             </div>
 
-            <!-- ฝั่งขวา: ตารางสมุดรายวันทั่วไป และรายงานงบการเงิน -->
             <div class="lg:col-span-7 flex flex-col gap-4">
                 
-                <!-- สมุดรายวันทั่วไป (General Journal) -->
                 <section id="section-journal" class="bg-white p-6 rounded-2xl shadow-sm border border-red-100 flex flex-col">
                     <div class="flex flex-col justify-between items-start border-b border-red-100 pb-3 mb-4 gap-3">
                         <h2 class="text-base font-bold text-red-700 flex items-center gap-2">
@@ -323,9 +357,7 @@
                                     <th class="p-3 text-right rounded-r-lg">เครดิต (Cr)</th>
                                 </tr>
                             </thead>
-                            <tbody id="journalTableBody" class="text-xs divide-y divide-gray-100">
-                                <!-- Populated via JS -->
-                            </tbody>
+                            <tbody id="journalTableBody" class="text-xs divide-y divide-gray-100"></tbody>
                         </table>
                     </div>
 
@@ -338,7 +370,6 @@
                     </div>
                 </section>
 
-                <!-- งบการเงินอัตโนมัติ (P&L และ Balance Sheet) -->
                 <section id="section-reports" class="bg-white p-6 rounded-2xl shadow-sm border border-red-100 flex flex-col hidden">
                     <div class="flex justify-between items-center border-b border-red-100 pb-3 mb-4">
                         <h2 class="text-base font-bold text-red-700 flex items-center gap-2">
@@ -351,7 +382,6 @@
                     </div>
 
                     <div class="space-y-4 max-h-[340px] overflow-y-auto pr-1">
-                        <!-- งบกำไรขาดทุน -->
                         <div class="border border-red-100 rounded-xl p-3 bg-red-50/30 text-xs">
                             <h3 class="font-bold text-red-800 mb-2 flex justify-between">
                                 <span>1. งบกำไรขาดทุน (Income Statement)</span>
@@ -381,7 +411,6 @@
                             </div>
                         </div>
 
-                        <!-- งบดุล -->
                         <div class="border border-red-100 rounded-xl p-3 bg-white text-xs">
                             <h3 class="font-bold text-red-800 mb-2 flex justify-between">
                                 <span>2. งบดุล / แสดงฐานะการเงิน (Balance Sheet)</span>
@@ -404,29 +433,61 @@
                         </div>
                     </div>
                 </section>
-
             </div>
         </main>
     </div>
 
-    <!-- ================= 3. JavaScript ควบคุมการทำงานทั้งหมด ================= -->
+
+    <!-- ================= 4. เลนหลักสำหรับ "เถ้าแก่" (Owner Executive Dashboard) ================= -->
+    <div id="app-owner-content" class="hidden flex flex-col min-h-screen bg-gray-50">
+        <header class="bg-red-900 text-white shadow-md">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <span class="bg-white text-red-900 font-bold p-2 rounded-lg shadow text-lg">🐾 Pet's Station</span>
+                    <div>
+                        <h1 class="text-base font-bold">ระบบบริหารภาพรวมธุรกิจ (Owner Executive Dashboard)</h1>
+                        <p class="text-xs text-red-200">ผู้ใช้งาน: <span id="owner-user-display" class="font-semibold underline">เถ้าแก่</span> (ผู้บริหารสูงสุด)</p>
+                    </div>
+                </div>
+                <button onclick="handleLogout()" class="bg-red-950 hover:bg-black px-3 py-1.5 rounded-lg text-xs font-semibold">ออกจากระบบ</button>
+            </div>
+        </header>
+        <main class="max-w-7xl mx-auto px-4 py-6 flex-grow grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-red-200">
+                <h3 class="text-xs font-bold text-gray-500 uppercase">ยอดขายรวมสุทธิวันนี้</h3>
+                <div class="text-2xl font-bold text-red-700 mt-2">12,500.00 ฿</div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-red-200">
+                <h3 class="text-xs font-bold text-gray-500 uppercase">คำสั่งซื้อรออนุมัติ</h3>
+                <div class="text-2xl font-bold text-emerald-700 mt-2">3 รายการ</div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-red-200">
+                <h3 class="text-xs font-bold text-gray-500 uppercase">สถานะคลังสินค้า</h3>
+                <div class="text-xl font-bold text-gray-800 mt-2">🟢 ปกติ</div>
+            </div>
+        </main>
+    </div>
+
+
+    <!-- ================= 5. JavaScript ควบคุมทั้งหมด ================= -->
     <script>
-        // ข้อมูลผู้ใช้งานในระบบ (เชื่อมกับหน้า Login เดิมของคุณ)
+        // กำหนดผู้ใช้งานตามที่คุณต้องการเป๊ะๆ
         let registeredUsers = [
-            { email: "tanwalai@gmail.com", pass: "123456", name: "ธัญวลัย (เจ้าของร้าน/นักบัญชี)" },
-            { email: "pets.station681@gmail.com", pass: "4321", name: "เถ้าแก่ (ผู้บริหารสูงสุด)" }
+            { email: "tanwalai2544@gmail.com", pass: "1234", name: "ธัญวลัย (พนักงาน)", role: "staff" },
+            { email: "bankpetstation@gmail.com", pass: "4321", name: "คุณแบงค์ (นักบัญชี)", role: "accountant" },
+            { email: "pets.station681@gmail.com", pass: "4321", name: "เถ้าแก่ (ผู้บริหารสูงสุด)", role: "owner" }
         ];
 
         let currentUser = null;
         let generatedOTP = "";
         let targetResetEmail = "";
+        let cartItems = [];
+        let currentReportMode = 'monthly';
 
         let journalEntries = [
             { date: "2026-11-07", id: "TX-2026-901", supplier: "บริษัท จรัญกิจ (Imperial Paw)", account: "สินค้าคงเหลือ (Inventory - Ministock)", creditAcc: "ธนาคารร้าน", amount: 15000, type: "procurement" },
             { date: "2026-11-07", id: "EXP-2026-089", supplier: "ค่าไฟฟ้าประจำเดือน", account: "ค่าไฟฟ้า (Expense)", creditAcc: "เงินสด / ธนาคารร้าน", amount: 3500, type: "expense" }
         ];
-
-        let currentReportMode = 'monthly';
 
         const transactionMockup = {
             "TX-2026-901": { supplier: "บริษัท จรัญกิจ (Imperial Paw)", invoice: "INV-2026-1105", items: "อาหารเม็ดแมว Imperial Paw (50 กระสอบ)", amount: 15000 },
@@ -434,7 +495,7 @@
             "TX-2026-903": { supplier: "Royal Canin Thailand", invoice: "INV-RC-5541", items: "อาหารสุนัขพันธุ์เล็ก (30 แพ็ค)", amount: 42000 }
         };
 
-        // ฟังก์ชันสลับการแสดงรหัสผ่าน (ตาเปิด 👁️ / ล็อก 🔒)
+        // ฟังก์ชันตาเปิด (👁️) / ตาปิด (🔒)
         function togglePassword(inputId, eyeId) {
             const inputField = document.getElementById(inputId);
             const eyeIcon = document.getElementById(eyeId);
@@ -447,7 +508,7 @@
             }
         }
 
-        // สลับแท็บหน้า Auth (Login / Forgot / OTP) ตามดีไซน์เดิมเป๊ะๆ
+        // สลับแท็บหน้า Login / Forgot
         function switchAuthTab(tab) {
             document.getElementById('form-login').classList.add('hidden');
             document.getElementById('form-forgot').classList.add('hidden');
@@ -469,7 +530,7 @@
             }
         }
 
-        // จัดการ Login เดิม
+        // ระบบ Login แยกตาม Role ของอีเมล
         function handleLogin(e) {
             e.preventDefault();
             const email = document.getElementById('login-email').value.trim().toLowerCase();
@@ -478,18 +539,27 @@
             const found = registeredUsers.find(u => u.email.toLowerCase() === email && u.pass === pass);
             if(found) {
                 currentUser = found;
-                document.getElementById('current-user-display').innerText = `${found.name} (${found.email})`;
                 document.getElementById('auth-wrapper').classList.add('hidden');
-                document.getElementById('app-main-content').classList.remove('hidden');
-                filterJournalByDateRange();
-                updateFinancialStatements();
+
+                if(found.role === 'staff') {
+                    document.getElementById('staff-user-display').innerText = `${found.name} (${found.email})`;
+                    document.getElementById('app-staff-content').classList.remove('hidden');
+                } else if(found.role === 'accountant') {
+                    document.getElementById('current-user-display').innerText = `${found.name} (${found.email})`;
+                    document.getElementById('app-accountant-content').classList.remove('hidden');
+                    filterJournalByDateRange();
+                    updateFinancialStatements();
+                } else if(found.role === 'owner') {
+                    document.getElementById('owner-user-display').innerText = `${found.name} (${found.email})`;
+                    document.getElementById('app-owner-content').classList.remove('hidden');
+                }
             } else {
                 document.getElementById('error-message-text').innerText = "อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง";
                 document.getElementById('login-error-alert').classList.remove('hidden');
             }
         }
 
-        // ระบบส่ง OTP เดิม
+        // ส่ง OTP พร้อมแจ้งเตือนไปยังเมลผู้ขอและเมลเถ้าแก่
         function handleSendOTP(e) {
             e.preventDefault();
             const email = document.getElementById('forgot-email').value.trim().toLowerCase();
@@ -499,7 +569,7 @@
                 targetResetEmail = email;
                 generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
                 
-                alert(`[ระบบจำลอง Email API]\n- ส่งรหัส OTP (${generatedOTP}) ไปยัง ${email} สำเร็จ\n- แจ้งเตือนสำเนาส่งไปยังเถ้าแก่ (pets.station681@gmail.com) เรียบร้อยแล้ว`);
+                alert(`[จำลองระบบส่งอีเมลสำเร็จ]\n- ส่งรหัส OTP (${generatedOTP}) ไปยัง ${email} สำเร็จ\n- 🚨 ส่งการแจ้งเตือนสำเนาไปที่อีเมลเถ้าแก่ (pets.station681@gmail.com) เรียบร้อยแล้ว`);
 
                 switchAuthTab('otp-reset');
                 document.getElementById('revealed-password-box').classList.add('hidden');
@@ -513,7 +583,7 @@
             }
         }
 
-        // ตรวจสอบ OTP เดิม
+        // ตรวจสอบ OTP และแสดงรหัสผ่านเมล์ทันทีตามที่ขอ
         function handleVerifyOTP(e) {
             e.preventDefault();
             const enteredOTP = document.getElementById('otp-input').value.trim();
@@ -535,13 +605,47 @@
 
         function handleLogout() {
             currentUser = null;
-            document.getElementById('app-main-content').classList.add('hidden');
+            document.getElementById('app-staff-content').classList.add('hidden');
+            document.getElementById('app-accountant-content').classList.add('hidden');
+            document.getElementById('app-owner-content').classList.add('hidden');
             document.getElementById('auth-wrapper').classList.remove('hidden');
             document.getElementById('login-pass').value = '';
             switchAuthTab('login');
         }
 
-        // สลับแท็บในระบบหลัก (เมนูนักบัญชี)
+        // ระบบ POS พนักงาน
+        function addToCart(name, price) {
+            const existing = cartItems.find(i => i.name === name);
+            if(existing) { existing.qty += 1; } else { cartItems.push({ name, price, qty: 1 }); }
+            renderCart();
+        }
+
+        function renderCart() {
+            const tbody = document.getElementById('cartTableBody');
+            tbody.innerHTML = '';
+            let total = 0;
+            if(cartItems.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-gray-400">ยังไม่มีสินค้าในตะกร้า</td></tr>`;
+                document.getElementById('cartTotalPrice').innerText = "0.00 ฿";
+                return;
+            }
+            cartItems.forEach(item => {
+                let sum = item.price * item.qty;
+                total += sum;
+                const row = document.createElement('tr');
+                row.innerHTML = `<td class="py-2">${item.name}</td><td class="py-2 text-center">${item.qty}</td><td class="py-2 text-right">${sum.toLocaleString('en-US', { minimumFractionDigits: 2 })} ฿</td>`;
+                tbody.appendChild(row);
+            });
+            document.getElementById('cartTotalPrice').innerText = total.toLocaleString('en-US', { minimumFractionDigits: 2 }) + " ฿";
+        }
+
+        function processCheckout() {
+            alert('บันทึกการขายและตัดสต็อกเรียบร้อย!');
+            cartItems = [];
+            renderCart();
+        }
+
+        // ฟังก์ชันระบบนักบัญชี (Audit Hub)
         function switchMainTab(tab) {
             document.getElementById('form-procurement-container').classList.add('hidden');
             document.getElementById('form-expense-container').classList.add('hidden');
@@ -585,7 +689,6 @@
             }
         }
 
-        // บันทึกรับสินค้าผ่านระบบ Audit & Pay-001
         function processAuditApproval() {
             const txId = document.getElementById('txId').value;
             const dateStr = document.getElementById('txDate').value || "2026-11-07";
@@ -614,7 +717,6 @@
             alert('อนุมัติระบบจ่ายเงินและบันทึกบัญชีสินค้าเข้าสต็อกเรียบร้อย!');
         }
 
-        // บันทึกค่าใช้จ่าย
         function processExpenseEntry() {
             const category = document.getElementById('expenseCategory').value;
             const desc = document.getElementById('expenseDesc').value;
@@ -637,10 +739,8 @@
             alert('บันทึกค่าใช้จ่ายและตัดบัญชีเรียบร้อย!');
         }
 
-        // ออกใบเสร็จ / ใบกำกับภาษี / CN
         function generateTaxDocument() {
             const docType = document.getElementById('taxDocType').value;
-            const refId = document.getElementById('taxRefId').value;
             const customer = document.getElementById('taxCustomer').value;
             const amount = parseFloat(document.getElementById('taxAmount').value) || 0;
 

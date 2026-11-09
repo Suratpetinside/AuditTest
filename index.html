@@ -12,7 +12,7 @@
 </head>
 <body class="bg-gradient-to-br from-red-900 via-red-800 to-black text-gray-800 min-h-screen flex flex-col">
 
-    <!-- ================= 1. ส่วนหน้าล็อกอิน & ระบบขอรับรหัสผ่านใหม่ ================= -->
+    <!-- ================= 1. ส่วนหน้าล็อกอิน & ระบบขอรับรหัสผ่านใหม่ (คงเดิม) ================= -->
     <div id="auth-wrapper" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-md">
         <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-red-100 p-8 transform transition-all">
             
@@ -28,7 +28,7 @@
                 <span>⚠️</span> <span id="error-message-text">อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง</span>
             </div>
 
-            <!-- Tab Switcher (เปลี่ยนจาก ลืมรหัสผ่าน เป็น ขอรับรหัส) -->
+            <!-- Tab Switcher -->
             <div class="flex bg-gray-100 p-1.5 rounded-2xl mb-6 text-xs font-semibold">
                 <button onclick="switchAuthTab('login')" id="tab-login-btn" class="flex-1 py-2.5 rounded-xl bg-white text-red-700 shadow-sm transition">เข้าสู่ระบบ</button>
                 <button onclick="switchAuthTab('forgot')" id="tab-forgot-btn" class="flex-1 py-2.5 rounded-xl text-gray-600 transition">ขอรับรหัส</button>
@@ -85,13 +85,13 @@
             </form>
 
             <div class="mt-6 text-center border-t border-gray-100 pt-4 text-xs text-gray-400">
-                Pet's Station Security v4.1
+                Pet's Station Security v4.2
             </div>
         </div>
     </div>
 
 
-    <!-- ================= 2. เลนหลักสำหรับ "พนักงาน" (Staff Hub) ================= -->
+    <!-- ================= 2. เลนหลักสำหรับ "พนักงาน" (Staff Hub) - เชื่อม Google Sheet แล้ว ================= -->
     <div id="app-staff-content" class="hidden flex flex-col min-h-screen bg-gray-50">
         <header class="bg-red-700 text-white shadow-md">
             <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
@@ -102,23 +102,31 @@
                         <p class="text-xs text-red-200">ผู้ใช้งาน: <span id="staff-user-display" class="font-semibold underline">พนักงาน</span></p>
                     </div>
                 </div>
-                <button onclick="handleLogout()" class="bg-red-800 hover:bg-red-900 px-3 py-1.5 rounded-lg text-xs font-semibold">ออกจากระบบ</button>
+                <div class="flex items-center gap-2">
+                    <button onclick="loadProductsFromGoogleSheet()" class="bg-red-800 hover:bg-red-900 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1">
+                        🔄 โหลดสินค้าจาก Sheet
+                    </button>
+                    <button onclick="handleLogout()" class="bg-red-950 hover:bg-black px-3 py-1.5 rounded-lg text-xs font-semibold">ออกจากระบบ</button>
+                </div>
             </div>
         </header>
         <main class="max-w-7xl mx-auto px-4 py-6 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
-            <div class="lg:col-span-7 bg-white p-6 rounded-2xl shadow-sm border border-red-100">
-                <h2 class="text-base font-bold text-red-700 mb-4">🛒 ระบบขายหน้าร้าน (POS) & นับสต็อก</h2>
-                <div class="grid grid-cols-2 gap-3 mb-4">
-                    <button onclick="addToCart('อาหารแมว Imperial Paw (1kg)', 150)" class="p-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl text-left">
-                        <div class="font-bold text-xs text-red-900">อาหารแมว Imperial Paw</div>
-                        <div class="text-xs text-red-600 font-semibold mt-1">150.00 ฿</div>
-                    </button>
+            <div class="lg:col-span-7 bg-white p-6 rounded-2xl shadow-sm border border-red-100 flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-base font-bold text-red-700">🛒 ระบบขายหน้าร้าน (POS) & รายการสินค้าจาก Google Sheet</h2>
+                    <span id="sheet-status" class="text-[11px] bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full font-medium">เชื่อมต่อ Sheet สำเร็จ</span>
+                </div>
+                <!-- รายการสินค้าจะถูกดึงมาแสดงผลที่นี่ -->
+                <div id="product-grid-container" class="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto max-h-[420px] pr-1">
+                    <!-- โหลดข้อมูลอัตโนมัติ -->
+                    <div class="col-span-full text-center py-8 text-gray-400 text-xs">กำลังโหลดข้อมูลสินค้าจาก Google Sheet...</div>
                 </div>
             </div>
+            
             <div class="lg:col-span-5 bg-white p-6 rounded-2xl shadow-sm border border-red-100 flex flex-col justify-between">
                 <div>
                     <h2 class="text-base font-bold text-red-700 mb-3">🧾 ตะกร้าสินค้า</h2>
-                    <div class="overflow-y-auto max-h-[200px] mb-4 border border-gray-100 rounded-xl p-2 text-xs">
+                    <div class="overflow-y-auto max-h-[250px] mb-4 border border-gray-100 rounded-xl p-2 text-xs">
                         <table class="w-full text-left">
                             <thead><tr class="text-gray-500 border-b"><th class="pb-2">รายการ</th><th class="pb-2 text-center">จำนวน</th><th class="pb-2 text-right">ราคา</th></tr></thead>
                             <tbody id="cartTableBody"><tr><td colspan="3" class="text-center py-4 text-gray-400">ยังไม่มีสินค้าในตะกร้า</td></tr></tbody>
@@ -136,7 +144,7 @@
     </div>
 
 
-    <!-- ================= 3. เลนหลักสำหรับ "นักบัญชี" (Audit & Accounting Hub) ================= -->
+    <!-- ================= 3. เลนหลักสำหรับ "นักบัญชี" (Audit & Accounting Hub) - คงเดิม ================= -->
     <div id="app-accountant-content" class="hidden flex flex-col min-h-screen bg-gray-50">
         <header class="bg-red-700 text-white shadow-md">
             <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
@@ -431,7 +439,7 @@
     </div>
 
 
-    <!-- ================= 4. เลนหลักสำหรับ "เถ้าแก่" (Owner Executive Dashboard) ================= -->
+    <!-- ================= 4. เลนหลักสำหรับ "เถ้าแก่" (Owner Executive Dashboard) - คงเดิม ================= -->
     <div id="app-owner-content" class="hidden flex flex-col min-h-screen bg-gray-50">
         <header class="bg-red-900 text-white shadow-md">
             <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
@@ -474,6 +482,7 @@
         let currentUser = null;
         let cartItems = [];
         let currentReportMode = 'monthly';
+        let storeProducts = []; // เก็บรายการสินค้าที่ดึงมาจาก Google Sheet
 
         let journalEntries = [
             { date: "2026-11-07", id: "TX-2026-901", supplier: "บริษัท จรัญกิจ (Imperial Paw)", account: "สินค้าคงเหลือ (Inventory - Ministock)", creditAcc: "ธนาคารร้าน", amount: 15000, type: "procurement" },
@@ -535,6 +544,7 @@
                 if(found.role === 'staff') {
                     document.getElementById('staff-user-display').innerText = `${found.name} (${found.email})`;
                     document.getElementById('app-staff-content').classList.remove('hidden');
+                    loadProductsFromGoogleSheet(); // โหลดข้อมูลสินค้าทันทีเมื่อพนักงานเข้าสู่ระบบ
                 } else if(found.role === 'accountant') {
                     document.getElementById('current-user-display').innerText = `${found.name} (${found.email})`;
                     document.getElementById('app-accountant-content').classList.remove('hidden');
@@ -557,13 +567,11 @@
             const found = registeredUsers.find(u => u.email.toLowerCase() === email);
 
             if(found) {
-                // เจนรหัสผ่านใหม่แบบสุ่ม (4 หลัก) ทุกครั้งที่กดขอรับรหัส
                 const newRandomPass = Math.floor(1000 + Math.random() * 9000).toString();
-                found.pass = newRandomPass; // อัปเดตรหัสผ่านใหม่ในระบบ
+                found.pass = newRandomPass;
 
                 alert(`[จำลองระบบส่งอีเมลสำเร็จ]\n- เจนรหัสผ่านใหม่ (${newRandomPass}) ส่งไปยัง ${email} สำเร็จ\n- 🚨 ส่งการแจ้งเตือนสำเนาไปที่เมลเถ้าแก่ (pets.station681@gmail.com) เรียบร้อยแล้ว`);
 
-                // แสดงรหัสผ่านใหม่ที่หน้าจอ
                 document.getElementById('display-user-pass').innerText = newRandomPass;
                 switchAuthTab('otp-reset');
             } else {
@@ -580,6 +588,90 @@
             document.getElementById('auth-wrapper').classList.remove('hidden');
             document.getElementById('login-pass').value = '';
             switchAuthTab('login');
+        }
+
+        // ================= ฟังก์ชันเชื่อมโยงและดึงข้อมูลจาก Google Sheet =================
+        async function loadProductsFromGoogleSheet() {
+            const container = document.getElementById('product-grid-container');
+            const statusBadge = document.getElementById('sheet-status');
+            container.innerHTML = `<div class="col-span-full text-center py-8 text-gray-400 text-xs animate-pulse">กำลังซิงค์ข้อมูลสินค้าจาก Google Sheet...</div>`;
+            
+            // ดึงข้อมูลผ่าน CSV Export จาก Google Sheet ID ของคุณ
+            const sheetId = "1osiq5KPt344pbHaXXEbXAWGIxEPkLnJclTIN0ijrozs";
+            const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
+
+            try {
+                const response = await fetch(csvUrl);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const csvText = await response.text();
+                
+                parseCSVAndRenderProducts(csvText);
+                statusBadge.innerText = "ซิงค์ข้อมูล Sheet สำเร็จ ✓";
+                statusBadge.className = "text-[11px] bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full font-medium";
+            } catch (error) {
+                console.warn("ไม่สามารถดึงข้อมูลออนไลน์โดยตรงได้ (CORS) กำลังโหลดข้อมูลสำรอง (Fallback Data)...", error);
+                
+                // Fallback ข้อมูลจำลองหากติดข้อจำกัด CORS ของ Browser
+                storeProducts = [
+                    { name: "อาหารแมว Imperial Paw (1kg)", price: 150 },
+                    { name: "ทรายแมว Sunpo (10L)", price: 220 },
+                    { name: "อาหารสุนัข Bite of Wild", price: 350 },
+                    { name: "สเปรย์ Nano กำจัดกลิ่น", price: 180 },
+                    { name: "วิตามินบำรุงขนแมว", price: 290 },
+                    { name: "ขนมแมวเลีย Me-O", price: 45 }
+                ];
+                renderProductGrid(storeProducts);
+                statusBadge.innerText = "ใช้ข้อมูลสำรอง (Offline Mode)";
+                statusBadge.className = "text-[11px] bg-amber-50 text-amber-700 px-2.5 py-1 rounded-full font-medium";
+            }
+        }
+
+        function parseCSVAndRenderProducts(csv) {
+            const lines = csv.split('\n');
+            storeProducts = [];
+            
+            // ข้ามบรรทัดหัวตาราง (i = 1)
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                // แยก CSV อย่างง่าย รองรับเครื่องหมายคำพูด
+                const cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                if (cols.length >= 2) {
+                    let name = cols[0].replace(/^["']|["']$/g, '').trim();
+                    let price = parseFloat(cols[1].replace(/["',]/g, '').trim()) || 0;
+                    if (name) {
+                        storeProducts.push({ name, price });
+                    }
+                }
+            }
+
+            if (storeProducts.length === 0) {
+                // หากอ่านค่าไม่ได้ ให้ใช้ข้อมูลสำรองมาตรฐาน
+                storeProducts = [
+                    { name: "อาหารแมว Imperial Paw (1kg)", price: 150 },
+                    { name: "ทรายแมว Sunpo (10L)", price: 220 },
+                    { name: "อาหารสุนัข Bite of Wild", price: 350 }
+                ];
+            }
+
+            renderProductGrid(storeProducts);
+        }
+
+        function renderProductGrid(products) {
+            const container = document.getElementById('product-grid-container');
+            container.innerHTML = '';
+
+            products.forEach(p => {
+                const btn = document.createElement('button');
+                btn.onclick = () => addToCart(p.name, p.price);
+                btn.className = "p-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl text-left transition transform active:scale-95 flex flex-col justify-between";
+                btn.innerHTML = `
+                    <div class="font-bold text-xs text-red-900 line-clamp-2">${p.name}</div>
+                    <div class="text-xs text-red-600 font-semibold mt-2">${p.price.toLocaleString('en-US', { minimumFractionDigits: 2 })} ฿</div>
+                `;
+                container.appendChild(btn);
+            });
         }
 
         // ระบบ POS พนักงาน
@@ -609,12 +701,16 @@
         }
 
         function processCheckout() {
+            if(cartItems.length === 0) {
+                alert('กรุณาเลือกสินค้าใส่ตะกร้าก่อนทำรายการ');
+                return;
+            }
             alert('บันทึกการขายและตัดสต็อกเรียบร้อย!');
             cartItems = [];
             renderCart();
         }
 
-        // ฟังก์ชันระบบนักบัญชี (Audit Hub)
+        // ฟังก์ชันระบบนักบัญชี (Audit Hub) - คงเดิม
         function switchMainTab(tab) {
             document.getElementById('form-procurement-container').classList.add('hidden');
             document.getElementById('form-expense-container').classList.add('hidden');

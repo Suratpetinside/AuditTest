@@ -12,7 +12,7 @@
 </head>
 <body class="bg-gradient-to-br from-red-900 via-red-800 to-black text-gray-800 min-h-screen flex flex-col">
 
-    <!-- ================= 1. ส่วนหน้าล็อกอิน & ระบบ OTP ลืมรหัสผ่าน ================= -->
+    <!-- ================= 1. ส่วนหน้าล็อกอิน & ระบบขอรับรหัสผ่านใหม่ ================= -->
     <div id="auth-wrapper" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-md">
         <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-red-100 p-8 transform transition-all">
             
@@ -28,10 +28,10 @@
                 <span>⚠️</span> <span id="error-message-text">อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง</span>
             </div>
 
-            <!-- Tab Switcher (มีเฉพาะ เข้าสู่ระบบ และ ลืมรหัสผ่าน ตามสั่ง) -->
+            <!-- Tab Switcher (เปลี่ยนจาก ลืมรหัสผ่าน เป็น ขอรับรหัส) -->
             <div class="flex bg-gray-100 p-1.5 rounded-2xl mb-6 text-xs font-semibold">
                 <button onclick="switchAuthTab('login')" id="tab-login-btn" class="flex-1 py-2.5 rounded-xl bg-white text-red-700 shadow-sm transition">เข้าสู่ระบบ</button>
-                <button onclick="switchAuthTab('forgot')" id="tab-forgot-btn" class="flex-1 py-2.5 rounded-xl text-gray-600 transition">ลืมรหัสผ่าน</button>
+                <button onclick="switchAuthTab('forgot')" id="tab-forgot-btn" class="flex-1 py-2.5 rounded-xl text-gray-600 transition">ขอรับรหัส</button>
             </div>
 
             <!-- Form: Login -->
@@ -54,45 +54,38 @@
                 </button>
             </form>
 
-            <!-- Form: Forgot Password (Step 1) -->
-            <form id="form-forgot" onsubmit="handleSendOTP(event)" class="space-y-4 hidden">
-                <p class="text-xs text-gray-600 bg-red-50 p-3 rounded-xl border border-red-100">💡 กรอกอีเมลของคุณ ระบบจะส่งรหัส OTP ไปยังอีเมลของคุณ และส่งแจ้งเตือนไปยังอีเมลเถ้าแก่ (<span class="font-semibold text-red-700">pets.station681@gmail.com</span>)</p>
+            <!-- Form: Request New Password (Step 1) -->
+            <form id="form-forgot" onsubmit="handleRequestNewPassword(event)" class="space-y-4 hidden">
+                <p class="text-xs text-gray-600 bg-red-50 p-3 rounded-xl border border-red-100">💡 กรอกอีเมลที่อยู่ในระบบอนุญาต ระบบจะสร้างรหัสผ่านใหม่ (Random Password) ทันที และส่งแจ้งเตือนไปยังอีเมลเถ้าแก่ (<span class="font-semibold text-red-700">pets.station681@gmail.com</span>)</p>
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">Google Mail (Gmail)</label>
                     <input type="email" id="forgot-email" required placeholder="name@gmail.com" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
                 </div>
                 <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition duration-200 text-sm">
-                    📤 ส่งรหัส OTP ยืนยันตัวตน
+                    📤 ขอรับรหัสผ่านใหม่
                 </button>
             </form>
 
-            <!-- Form: Verify OTP (Step 2) -->
-            <form id="form-otp-reset" onsubmit="handleVerifyOTP(event)" class="space-y-4 hidden">
+            <!-- Form: Result & New Password Display (Step 2) -->
+            <form id="form-otp-reset" onsubmit="return false;" class="space-y-4 hidden">
                 <div class="bg-blue-50 border border-blue-200 p-3 rounded-xl text-[11px] text-blue-800 space-y-1">
-                    <p class="font-semibold">✉️ ส่งรหัส OTP สำเร็จ!</p>
-                    <p>- ส่งไปที่อีเมลผู้ขอเรียบร้อยแล้ว</p>
+                    <p class="font-semibold">✉️ เจนรหัสผ่านใหม่สำเร็จ!</p>
+                    <p>- ส่งรหัสผ่านใหม่ไปที่อีเมลผู้ขอเรียบร้อยแล้ว</p>
                     <p>- 🚨 แจ้งเตือนส่งไปยังอีเมลเถ้าแก่ (pets.station681@gmail.com) แล้ว</p>
                 </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">กรอกรหัส OTP (6 หลัก)</label>
-                    <input type="text" id="otp-input" required maxlength="6" placeholder="123456" class="w-full border border-gray-300 rounded-xl p-3 text-center tracking-widest font-bold text-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
-                </div>
                 
-                <div id="revealed-password-box" class="hidden bg-emerald-50 border border-emerald-200 p-3.5 rounded-xl text-center space-y-1">
-                    <p class="text-xs text-emerald-800 font-semibold">🎉 ยืนยัน OTP สำเร็จ! รหัสผ่านบัญชีของคุณคือ:</p>
+                <div id="revealed-password-box" class="bg-emerald-50 border border-emerald-200 p-3.5 rounded-xl text-center space-y-1">
+                    <p class="text-xs text-emerald-800 font-semibold">🎉 รหัสผ่านใหม่ของคุณ (เจนใหม่ทุกครั้งที่ขอ):</p>
                     <div id="display-user-pass" class="text-xl font-bold text-emerald-900 tracking-wider bg-white py-2 rounded-lg border border-emerald-200 shadow-inner"></div>
                 </div>
 
-                <button type="submit" id="btn-verify-otp" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition duration-200 text-sm">
-                    ✅ ยืนยันรหัส OTP
-                </button>
-                <button type="button" id="btn-back-login" onclick="switchAuthTab('login')" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2.5 rounded-xl text-xs hidden">
-                    🔑 กลับไปหน้าเข้าสู่ระบบ
+                <button type="button" onclick="switchAuthTab('login')" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition duration-200 text-sm">
+                    🔑 กลับไปหน้าเข้าสู่ระบบด้วยรหัสใหม่
                 </button>
             </form>
 
             <div class="mt-6 text-center border-t border-gray-100 pt-4 text-xs text-gray-400">
-                Pet's Station Security v4.0
+                Pet's Station Security v4.1
             </div>
         </div>
     </div>
@@ -143,7 +136,7 @@
     </div>
 
 
-    <!-- ================= 3. เลนหลักสำหรับ "นักบัญชี" (Audit & Accounting Hub ตามที่คุณขอ) ================= -->
+    <!-- ================= 3. เลนหลักสำหรับ "นักบัญชี" (Audit & Accounting Hub) ================= -->
     <div id="app-accountant-content" class="hidden flex flex-col min-h-screen bg-gray-50">
         <header class="bg-red-700 text-white shadow-md">
             <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
@@ -471,7 +464,7 @@
 
     <!-- ================= 5. JavaScript ควบคุมทั้งหมด ================= -->
     <script>
-        // กำหนดผู้ใช้งานตามที่คุณต้องการเป๊ะๆ
+        // รายชื่ออีเมลที่ได้รับอนุญาตพร้อม Role
         let registeredUsers = [
             { email: "tanwalai2544@gmail.com", pass: "1234", name: "ธัญวลัย (พนักงาน)", role: "staff" },
             { email: "bankpetstation@gmail.com", pass: "4321", name: "คุณแบงค์ (นักบัญชี)", role: "accountant" },
@@ -479,8 +472,6 @@
         ];
 
         let currentUser = null;
-        let generatedOTP = "";
-        let targetResetEmail = "";
         let cartItems = [];
         let currentReportMode = 'monthly';
 
@@ -495,7 +486,7 @@
             "TX-2026-903": { supplier: "Royal Canin Thailand", invoice: "INV-RC-5541", items: "อาหารสุนัขพันธุ์เล็ก (30 แพ็ค)", amount: 42000 }
         };
 
-        // ฟังก์ชันตาเปิด (👁️) / ตาปิด (🔒)
+        // ฟังก์ชันเปิด/ปิดตา รหัสผ่าน
         function togglePassword(inputId, eyeId) {
             const inputField = document.getElementById(inputId);
             const eyeIcon = document.getElementById(eyeId);
@@ -508,7 +499,7 @@
             }
         }
 
-        // สลับแท็บหน้า Login / Forgot
+        // สลับแท็บหน้า Login / ขอรับรหัส
         function switchAuthTab(tab) {
             document.getElementById('form-login').classList.add('hidden');
             document.getElementById('form-forgot').classList.add('hidden');
@@ -530,7 +521,7 @@
             }
         }
 
-        // ระบบ Login แยกตาม Role ของอีเมล
+        // ระบบ Login
         function handleLogin(e) {
             e.preventDefault();
             const email = document.getElementById('login-email').value.trim().toLowerCase();
@@ -559,47 +550,25 @@
             }
         }
 
-        // ส่ง OTP พร้อมแจ้งเตือนไปยังเมลผู้ขอและเมลเถ้าแก่
-        function handleSendOTP(e) {
+        // ขอรับรหัสผ่านใหม่: เจนรหัสใหม่ทุกครั้ง พร้อมส่งแจ้งเตือนเมลผู้ขอและเถ้าแก่
+        function handleRequestNewPassword(e) {
             e.preventDefault();
             const email = document.getElementById('forgot-email').value.trim().toLowerCase();
             const found = registeredUsers.find(u => u.email.toLowerCase() === email);
 
             if(found) {
-                targetResetEmail = email;
-                generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-                
-                alert(`[จำลองระบบส่งอีเมลสำเร็จ]\n- ส่งรหัส OTP (${generatedOTP}) ไปยัง ${email} สำเร็จ\n- 🚨 ส่งการแจ้งเตือนสำเนาไปที่อีเมลเถ้าแก่ (pets.station681@gmail.com) เรียบร้อยแล้ว`);
+                // เจนรหัสผ่านใหม่แบบสุ่ม (4 หลัก) ทุกครั้งที่กดขอรับรหัส
+                const newRandomPass = Math.floor(1000 + Math.random() * 9000).toString();
+                found.pass = newRandomPass; // อัปเดตรหัสผ่านใหม่ในระบบ
 
+                alert(`[จำลองระบบส่งอีเมลสำเร็จ]\n- เจนรหัสผ่านใหม่ (${newRandomPass}) ส่งไปยัง ${email} สำเร็จ\n- 🚨 ส่งการแจ้งเตือนสำเนาไปที่เมลเถ้าแก่ (pets.station681@gmail.com) เรียบร้อยแล้ว`);
+
+                // แสดงรหัสผ่านใหม่ที่หน้าจอ
+                document.getElementById('display-user-pass').innerText = newRandomPass;
                 switchAuthTab('otp-reset');
-                document.getElementById('revealed-password-box').classList.add('hidden');
-                document.getElementById('btn-verify-otp').classList.remove('hidden');
-                document.getElementById('btn-back-login').classList.add('hidden');
-                document.getElementById('otp-input').value = '';
-                document.getElementById('otp-input').disabled = false;
             } else {
-                document.getElementById('error-message-text').innerText = "ไม่พบ Google Mail นี้ในระบบฐานข้อมูลร้าน";
+                document.getElementById('error-message-text').innerText = "ไม่พบ Google Mail นี้ในระบบฐานข้อมูลร้านที่ได้รับอนุญาต";
                 document.getElementById('login-error-alert').classList.remove('hidden');
-            }
-        }
-
-        // ตรวจสอบ OTP และแสดงรหัสผ่านเมล์ทันทีตามที่ขอ
-        function handleVerifyOTP(e) {
-            e.preventDefault();
-            const enteredOTP = document.getElementById('otp-input').value.trim();
-
-            if(enteredOTP !== generatedOTP) {
-                alert('❌ รหัส OTP ไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง');
-                return;
-            }
-
-            const user = registeredUsers.find(u => u.email.toLowerCase() === targetResetEmail);
-            if(user) {
-                document.getElementById('otp-input').disabled = true;
-                document.getElementById('display-user-pass').innerText = user.pass;
-                document.getElementById('revealed-password-box').classList.remove('hidden');
-                document.getElementById('btn-verify-otp').classList.add('hidden');
-                document.getElementById('btn-back-login').classList.remove('hidden');
             }
         }
 

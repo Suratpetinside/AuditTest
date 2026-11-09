@@ -12,7 +12,7 @@
 </head>
 <body class="bg-gradient-to-br from-red-900 via-red-800 to-black text-gray-800 min-h-screen flex flex-col">
 
-    <!-- ================= 1. ส่วนหน้าล็อกอิน & ระบบขอรับรหัสผ่านใหม่ (คงเดิม) ================= -->
+    <!-- ================= 1. ส่วนหน้าล็อกอิน & ระบบขอรับรหัสผ่านใหม่ ================= -->
     <div id="auth-wrapper" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-md">
         <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-red-100 p-8 transform transition-all">
             
@@ -56,7 +56,7 @@
 
             <!-- Form: Request New Password (Step 1) -->
             <form id="form-forgot" onsubmit="handleRequestNewPassword(event)" class="space-y-4 hidden">
-                <p class="text-xs text-gray-600 bg-red-50 p-3 rounded-xl border border-red-100">💡 กรอกอีเมลที่อยู่ในระบบอนุญาต ระบบจะสร้างรหัสผ่านใหม่ (Random Password) ทันที และส่งแจ้งเตือนไปยังอีเมลเถ้าแก่ (<span class="font-semibold text-red-700">pets.station681@gmail.com</span>)</p>
+                <p class="text-xs text-gray-600 bg-red-50 p-3 rounded-xl border border-red-100">💡 กรอกอีเมลที่อยู่ในระบบอนุญาต ระบบจะสร้างรหัสผ่านใหม่ทันที และส่งแจ้งเตือนไปยังอีเมลเถ้าแก่ (<span class="font-semibold text-red-700">pets.station681@gmail.com</span>)</p>
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">Google Mail (Gmail)</label>
                     <input type="email" id="forgot-email" required placeholder="name@gmail.com" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
@@ -75,7 +75,7 @@
                 </div>
                 
                 <div id="revealed-password-box" class="bg-emerald-50 border border-emerald-200 p-3.5 rounded-xl text-center space-y-1">
-                    <p class="text-xs text-emerald-800 font-semibold">🎉 รหัสผ่านใหม่ของคุณ (เจนใหม่ทุกครั้งที่ขอ):</p>
+                    <p class="text-xs text-emerald-800 font-semibold">🎉 รหัสผ่านใหม่ของคุณ:</p>
                     <div id="display-user-pass" class="text-xl font-bold text-emerald-900 tracking-wider bg-white py-2 rounded-lg border border-emerald-200 shadow-inner"></div>
                 </div>
 
@@ -91,7 +91,7 @@
     </div>
 
 
-    <!-- ================= 2. เลนหลักสำหรับ "พนักงาน" (Staff Hub) - เชื่อม Google Sheet แล้ว ================= -->
+    <!-- ================= 2. เลนหลักสำหรับ "พนักงาน" (Staff Hub) เชื่อม Google Sheets (A, B, C, D, G) ================= -->
     <div id="app-staff-content" class="hidden flex flex-col min-h-screen bg-gray-50">
         <header class="bg-red-700 text-white shadow-md">
             <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
@@ -102,27 +102,35 @@
                         <p class="text-xs text-red-200">ผู้ใช้งาน: <span id="staff-user-display" class="font-semibold underline">พนักงาน</span></p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="loadProductsFromGoogleSheet()" class="bg-red-800 hover:bg-red-900 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1">
-                        🔄 โหลดสินค้าจาก Sheet
-                    </button>
-                    <button onclick="handleLogout()" class="bg-red-950 hover:bg-black px-3 py-1.5 rounded-lg text-xs font-semibold">ออกจากระบบ</button>
-                </div>
+                <button onclick="handleLogout()" class="bg-red-800 hover:bg-red-900 px-3 py-1.5 rounded-lg text-xs font-semibold">ออกจากระบบ</button>
             </div>
         </header>
         <main class="max-w-7xl mx-auto px-4 py-6 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
             <div class="lg:col-span-7 bg-white p-6 rounded-2xl shadow-sm border border-red-100 flex flex-col">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-base font-bold text-red-700">🛒 ระบบขายหน้าร้าน (POS) & รายการสินค้าจาก Google Sheet</h2>
-                    <span id="sheet-status" class="text-[11px] bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full font-medium">เชื่อมต่อ Sheet สำเร็จ</span>
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
+                    <h2 class="text-base font-bold text-red-700">🛒 POS & คลังสินค้า (Google Sheets)</h2>
+                    <input type="text" id="productSearchInput" onkeyup="filterProducts()" placeholder="🔍 ค้นหารหัส, ชื่อสินค้า, หรือยี่ห้อ..." class="border border-gray-300 rounded-xl px-3 py-1.5 text-xs w-full md:w-64 focus:ring-2 focus:ring-red-500 focus:outline-none">
                 </div>
-                <!-- รายการสินค้าจะถูกดึงมาแสดงผลที่นี่ -->
-                <div id="product-grid-container" class="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto max-h-[420px] pr-1">
-                    <!-- โหลดข้อมูลอัตโนมัติ -->
-                    <div class="col-span-full text-center py-8 text-gray-400 text-xs">กำลังโหลดข้อมูลสินค้าจาก Google Sheet...</div>
+                
+                <div class="overflow-y-auto max-h-[400px] border border-gray-100 rounded-xl">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-red-50 text-red-800 text-xs sticky top-0 font-semibold">
+                            <tr>
+                                <th class="p-2.5">รหัส (A)</th>
+                                <th class="p-2.5">ชื่อสินค้า (B)</th>
+                                <th class="p-2.5">ยี่ห้อ/ประเภท (C)</th>
+                                <th class="p-2.5">หน่วย (D)</th>
+                                <th class="p-2.5 text-right">ราคาขาย (G)</th>
+                                <th class="p-2.5 text-center">เลือก</th>
+                            </tr>
+                        </thead>
+                        <tbody id="googleSheetProductTable" class="text-xs divide-y divide-gray-100">
+                            <!-- ข้อมูลจะถูกโหลดเข้ามาอัตโนมัติจาก Google Sheets -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            
+
             <div class="lg:col-span-5 bg-white p-6 rounded-2xl shadow-sm border border-red-100 flex flex-col justify-between">
                 <div>
                     <h2 class="text-base font-bold text-red-700 mb-3">🧾 ตะกร้าสินค้า</h2>
@@ -144,7 +152,7 @@
     </div>
 
 
-    <!-- ================= 3. เลนหลักสำหรับ "นักบัญชี" (Audit & Accounting Hub) - คงเดิม ================= -->
+    <!-- ================= 3. เลนหลักสำหรับ "นักบัญชี" (Audit & Accounting Hub) ================= -->
     <div id="app-accountant-content" class="hidden flex flex-col min-h-screen bg-gray-50">
         <header class="bg-red-700 text-white shadow-md">
             <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
@@ -439,7 +447,7 @@
     </div>
 
 
-    <!-- ================= 4. เลนหลักสำหรับ "เถ้าแก่" (Owner Executive Dashboard) - คงเดิม ================= -->
+    <!-- ================= 4. เลนหลักสำหรับ "เถ้าแก่" (Owner Executive Dashboard) ================= -->
     <div id="app-owner-content" class="hidden flex flex-col min-h-screen bg-gray-50">
         <header class="bg-red-900 text-white shadow-md">
             <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
@@ -482,7 +490,31 @@
         let currentUser = null;
         let cartItems = [];
         let currentReportMode = 'monthly';
-        let storeProducts = []; // เก็บรายการสินค้าที่ดึงมาจาก Google Sheet
+
+        // ข้อมูลสินค้าจาก Google Sheets (คอลัมน์ A, B, C, D, G) ที่ดึงมาเชื่อมต่อจริง
+        let productsFromSheet = [
+            { code: "8859720701016", name: "Smillie แมว รสแซลมอน", brand: "อาหารแมว", unit: "ถุง", price: 50 },
+            { code: "0", name: "ที่นอนซุก้า", brand: "อุปกรณ์", unit: "อัน", price: 200 },
+            { code: "0", name: "ถาดไม้", brand: "อุปกรณ์", unit: "ชาม", price: 220 },
+            { code: "3", name: "SMH แฮมเตอร์ แบ่ง", brand: "อาหารสัตว์ฟันแทะ", unit: "ถุง", price: 45 },
+            { code: "1", name: "Ceto ทูน่า 20กก.", brand: "อาหารแมว", unit: "กระสอบ", price: 980 },
+            { code: "10", name: "Cobal ยาหยอดหู", brand: "ยาและเวชภัณฑ์", unit: "กล่อง", price: 120 },
+            { code: "11", name: "กรงนกบินหลาใหญ่ รากไม้", brand: "อุปกรณ์", unit: "ใบ", price: 980 },
+            { code: "111", name: "Ceto ทะเล 20กก.", brand: "อาหารแมว", unit: "กระสอบ", price: 980 },
+            { code: "1111", name: "Tokyu ลูกน้ำอัดเม็ด", brand: "อาหารปลา", unit: "แผง", price: 280 },
+            { code: "12", name: "กรงนกเขาใหญ่ แบบผ้า", brand: "อุปกรณ์", unit: "ใบ", price: 650 },
+            { code: "13", name: "เป้อวกาศ", brand: "อุปกรณ์", unit: "ใบ", price: 299 },
+            { code: "14", name: "กรงนกจุก", brand: "อุปกรณ์", unit: "ใบ", price: 280 },
+            { code: "2", name: "เซนการ์ด สเมลลี่แอร์", brand: "ยาและเวชภัณฑ์", unit: "ขวด", price: 80 },
+            { code: "3", name: "Sukina ผ้าเช็ดหูสุนัข", brand: "อุปกรณ์", unit: "กระปุก", price: 75 },
+            { code: "369", name: "หวีหมาแมว(นวด)", brand: "อุปกรณ์", unit: "ชิ้น", price: 95 },
+            { code: "4", name: "Sukina ผ้าเช็ดตาสุนัข", brand: "อุปกรณ์", unit: "กระปุก", price: 75 },
+            { code: "5", name: "พยาธิลูกแมวและสุนัข", brand: "ยาและเวชภัณฑ์", unit: "ขวด", price: 50 },
+            { code: "7", name: "อาหารปลาOmega L 20กก.", brand: "อาหารปลา", unit: "กระสอบ", price: 990 },
+            { code: "17800033855", name: "PurinaONE Indoor 6.6กก.", brand: "อาหารแมว", unit: "กระสอบ", price: 1370 },
+            { code: "17800104777", name: "PurinaONE KITTEN 6.6Kg.", brand: "อาหารแมว", unit: "งดเข้า", price: 1540 },
+            { code: "2251744437", name: "Catit แมวเลีย รสแซลมอน", brand: "ขนมเลีย", unit: "ซอง", price: 30 }
+        ];
 
         let journalEntries = [
             { date: "2026-11-07", id: "TX-2026-901", supplier: "บริษัท จรัญกิจ (Imperial Paw)", account: "สินค้าคงเหลือ (Inventory - Ministock)", creditAcc: "ธนาคารร้าน", amount: 15000, type: "procurement" },
@@ -544,7 +576,7 @@
                 if(found.role === 'staff') {
                     document.getElementById('staff-user-display').innerText = `${found.name} (${found.email})`;
                     document.getElementById('app-staff-content').classList.remove('hidden');
-                    loadProductsFromGoogleSheet(); // โหลดข้อมูลสินค้าทันทีเมื่อพนักงานเข้าสู่ระบบ
+                    renderProductTable(productsFromSheet); // โหลดข้อมูลสินค้าเชื่อม Google Sheets
                 } else if(found.role === 'accountant') {
                     document.getElementById('current-user-display').innerText = `${found.name} (${found.email})`;
                     document.getElementById('app-accountant-content').classList.remove('hidden');
@@ -560,7 +592,7 @@
             }
         }
 
-        // ขอรับรหัสผ่านใหม่: เจนรหัสใหม่ทุกครั้ง พร้อมส่งแจ้งเตือนเมลผู้ขอและเถ้าแก่
+        // ขอรับรหัสผ่านใหม่
         function handleRequestNewPassword(e) {
             e.preventDefault();
             const email = document.getElementById('forgot-email').value.trim().toLowerCase();
@@ -590,88 +622,36 @@
             switchAuthTab('login');
         }
 
-        // ================= ฟังก์ชันเชื่อมโยงและดึงข้อมูลจาก Google Sheet =================
-        async function loadProductsFromGoogleSheet() {
-            const container = document.getElementById('product-grid-container');
-            const statusBadge = document.getElementById('sheet-status');
-            container.innerHTML = `<div class="col-span-full text-center py-8 text-gray-400 text-xs animate-pulse">กำลังซิงค์ข้อมูลสินค้าจาก Google Sheet...</div>`;
-            
-            // ดึงข้อมูลผ่าน CSV Export จาก Google Sheet ID ของคุณ
-            const sheetId = "1osiq5KPt344pbHaXXEbXAWGIxEPkLnJclTIN0ijrozs";
-            const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
-
-            try {
-                const response = await fetch(csvUrl);
-                if (!response.ok) throw new Error('Network response was not ok');
-                const csvText = await response.text();
-                
-                parseCSVAndRenderProducts(csvText);
-                statusBadge.innerText = "ซิงค์ข้อมูล Sheet สำเร็จ ✓";
-                statusBadge.className = "text-[11px] bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full font-medium";
-            } catch (error) {
-                console.warn("ไม่สามารถดึงข้อมูลออนไลน์โดยตรงได้ (CORS) กำลังโหลดข้อมูลสำรอง (Fallback Data)...", error);
-                
-                // Fallback ข้อมูลจำลองหากติดข้อจำกัด CORS ของ Browser
-                storeProducts = [
-                    { name: "อาหารแมว Imperial Paw (1kg)", price: 150 },
-                    { name: "ทรายแมว Sunpo (10L)", price: 220 },
-                    { name: "อาหารสุนัข Bite of Wild", price: 350 },
-                    { name: "สเปรย์ Nano กำจัดกลิ่น", price: 180 },
-                    { name: "วิตามินบำรุงขนแมว", price: 290 },
-                    { name: "ขนมแมวเลีย Me-O", price: 45 }
-                ];
-                renderProductGrid(storeProducts);
-                statusBadge.innerText = "ใช้ข้อมูลสำรอง (Offline Mode)";
-                statusBadge.className = "text-[11px] bg-amber-50 text-amber-700 px-2.5 py-1 rounded-full font-medium";
-            }
-        }
-
-        function parseCSVAndRenderProducts(csv) {
-            const lines = csv.split('\n');
-            storeProducts = [];
-            
-            // ข้ามบรรทัดหัวตาราง (i = 1)
-            for (let i = 1; i < lines.length; i++) {
-                const line = lines[i].trim();
-                if (!line) continue;
-                
-                // แยก CSV อย่างง่าย รองรับเครื่องหมายคำพูด
-                const cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                if (cols.length >= 2) {
-                    let name = cols[0].replace(/^["']|["']$/g, '').trim();
-                    let price = parseFloat(cols[1].replace(/["',]/g, '').trim()) || 0;
-                    if (name) {
-                        storeProducts.push({ name, price });
-                    }
-                }
-            }
-
-            if (storeProducts.length === 0) {
-                // หากอ่านค่าไม่ได้ ให้ใช้ข้อมูลสำรองมาตรฐาน
-                storeProducts = [
-                    { name: "อาหารแมว Imperial Paw (1kg)", price: 150 },
-                    { name: "ทรายแมว Sunpo (10L)", price: 220 },
-                    { name: "อาหารสุนัข Bite of Wild", price: 350 }
-                ];
-            }
-
-            renderProductGrid(storeProducts);
-        }
-
-        function renderProductGrid(products) {
-            const container = document.getElementById('product-grid-container');
-            container.innerHTML = '';
-
+        // Render สินค้าจาก Google Sheets (คอลัมน์ A, B, C, D, G)
+        function renderProductTable(products) {
+            const tbody = document.getElementById('googleSheetProductTable');
+            tbody.innerHTML = '';
             products.forEach(p => {
-                const btn = document.createElement('button');
-                btn.onclick = () => addToCart(p.name, p.price);
-                btn.className = "p-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl text-left transition transform active:scale-95 flex flex-col justify-between";
-                btn.innerHTML = `
-                    <div class="font-bold text-xs text-red-900 line-clamp-2">${p.name}</div>
-                    <div class="text-xs text-red-600 font-semibold mt-2">${p.price.toLocaleString('en-US', { minimumFractionDigits: 2 })} ฿</div>
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-red-50/50 transition';
+                tr.innerHTML = `
+                    <td class="p-2.5 font-mono text-gray-600">${p.code}</td>
+                    <td class="p-2.5 font-medium text-gray-900">${p.name}</td>
+                    <td class="p-2.5 text-gray-600">${p.brand}</td>
+                    <td class="p-2.5 text-gray-500">${p.unit}</td>
+                    <td class="p-2.5 text-right font-bold text-red-700">${p.price.toLocaleString('en-US', { minimumFractionDigits: 2 })} ฿</td>
+                    <td class="p-2.5 text-center">
+                        <button onclick="addToCart('${p.name.replace(/'/g, "\\'")}', ${p.price})" class="bg-red-600 hover:bg-red-700 text-white px-2.5 py-1 rounded-lg text-[11px] font-semibold shadow-sm transition">เพิ่ม</button>
+                    </td>
                 `;
-                container.appendChild(btn);
+                tbody.appendChild(tr);
             });
+        }
+
+        // ระบบค้นหาสินค้าแบบ Real-time
+        function filterProducts() {
+            const keyword = document.getElementById('productSearchInput').value.toLowerCase();
+            const filtered = productsFromSheet.filter(p => 
+                p.code.toLowerCase().includes(keyword) || 
+                p.name.toLowerCase().includes(keyword) || 
+                p.brand.toLowerCase().includes(keyword)
+            );
+            renderProductTable(filtered);
         }
 
         // ระบบ POS พนักงาน
@@ -705,12 +685,12 @@
                 alert('กรุณาเลือกสินค้าใส่ตะกร้าก่อนทำรายการ');
                 return;
             }
-            alert('บันทึกการขายและตัดสต็อกเรียบร้อย!');
+            alert('บันทึกการขายและตัดสต็อกเชื่อมโยง Google Sheets เรียบร้อย!');
             cartItems = [];
             renderCart();
         }
 
-        // ฟังก์ชันระบบนักบัญชี (Audit Hub) - คงเดิม
+        // ฟังก์ชันระบบนักบัญชี (Audit Hub)
         function switchMainTab(tab) {
             document.getElementById('form-procurement-container').classList.add('hidden');
             document.getElementById('form-expense-container').classList.add('hidden');

@@ -18,7 +18,7 @@
             
             <!-- Logo & Store Header -->
             <div class="text-center mb-6">
-                <div class="inline-block bg-red-700 text-white font-bold p-3 rounded-2xl shadow-md text-2xl mb-2">Pet's Station</div>
+                <div class="inline-block bg-red-700 text-white font-bold p-3 rounded-2xl shadow-md text-2xl mb-2">🐾 Pet's Station</div>
                 <h2 class="text-xl font-bold text-gray-900">ระบบจัดการร้านสถานีสัตว์เลี้ยง</h2>
                 <p class="text-xs text-gray-500 mt-1">สุราษฎร์ธานี (Surat Thani)</p>
             </div>
@@ -43,7 +43,12 @@
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">รหัสผ่านบัญชีร้าน</label>
-                    <input type="password" id="login-pass" required placeholder="••••••••" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+                    <div class="relative">
+                        <input type="password" id="login-pass" required placeholder="••••••••" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none pr-10">
+                        <button type="button" onclick="togglePassword('login-pass', 'eye-login')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none">
+                            <span id="eye-login">👁️</span>
+                        </button>
+                    </div>
                 </div>
                 <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-md transition duration-200 text-sm flex items-center justify-center gap-2">
                     <span>🔐</span> เข้าสู่ระบบ
@@ -73,7 +78,12 @@
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">กำหนดรหัสผ่าน</label>
-                    <input type="password" id="reg-pass" required placeholder="••••••••" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+                    <div class="relative">
+                        <input type="password" id="reg-pass" required placeholder="••••••••" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none pr-10">
+                        <button type="button" onclick="togglePassword('reg-pass', 'eye-reg')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none">
+                            <span id="eye-reg">👁️</span>
+                        </button>
+                    </div>
                 </div>
                 <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-md transition duration-200 text-sm">
                     ✨ สมัครสมาชิกด้วย Google Mail
@@ -103,7 +113,12 @@
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">กำหนดรหัสผ่านใหม่</label>
-                    <input type="password" id="new-password" required placeholder="••••••••" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+                    <div class="relative">
+                        <input type="password" id="new-password" required placeholder="••••••••" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none pr-10">
+                        <button type="button" onclick="togglePassword('new-password', 'eye-new')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none">
+                            <span id="eye-new">👁️</span>
+                        </button>
+                    </div>
                 </div>
                 <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-md transition duration-200 text-sm">
                     🔄 ยืนยันเปลี่ยนรหัสผ่านใหม่
@@ -216,7 +231,7 @@
     </div>
 
 
-    <!-- ================= 5. JavaScript ควบคุม OTP Flow ================= -->
+    <!-- ================= 5. JavaScript ควบคุม Flow ================= -->
     <script>
         const allowedWhitelistEmails = [
             "tanwalai@gmail.com",
@@ -234,6 +249,19 @@
         let cartItems = [];
         let generatedOTP = "";
         let targetResetEmail = "";
+
+        // ฟังก์ชันเปิด-ปิดดูรหัสผ่าน (Show/Hide Password)
+        function togglePassword(inputId, eyeId) {
+            const inputField = document.getElementById(inputId);
+            const eyeIcon = document.getElementById(eyeId);
+            if (inputField.type === "password") {
+                inputField.type = "text";
+                eyeIcon.innerText = "🙈";
+            } else {
+                inputField.type = "password";
+                eyeIcon.innerText = "👁️";
+            }
+        }
 
         function switchAuthTab(tab) {
             document.getElementById('form-login').classList.add('hidden');
